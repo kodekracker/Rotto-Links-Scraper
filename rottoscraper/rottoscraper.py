@@ -1,10 +1,14 @@
 #! /usr/bin/python
 
+
+import Queue
 import requests
 import urllib2
 from bs4 import BeautifulSoup
 from urlparse import urljoin
+from os.path import splitext, basename
 
+temp_links = []
 
 def print_links(links):
 	"""Print all the links of a set"""
@@ -31,23 +35,24 @@ def get_status_code(url):
 	r = get_object(url)
 	return r.status_code
 
-def start_crawler(seed_url):
-	"""Return the set of rotto links from a seed Url"""
-	bravo_links = []	# a set of all fine/unbroken links
-	rotto_links = []	# a set of all broken links 
-	visited_links = []	# a set of visited links
-	base_url = seed_url # base url 
-
+def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 	links = get_links(seed_url)
-
 	for l in links:
 		url = l['href']
-		if not url.startswith('http'):
-			url = urljoin(base_url, url)
-		if url not in visited_links and url.startswith(base_url):
-			print 'Visiting Url : ', url
+		page, ext = splitext(basename(seed_url))
+		if ext or seed_url.endswith('/'):
+			base_url = seed_url
+		else:
+			base_url = seed_url + '/'
+		
+		temp_links.append(url)
+		url = urljoin(base_url, url)
+		if url not in visited_links and url.startswith(host_url):
+			print 'Checking Url Status: ', url
+			print 'Status:: ',get_status_code(url)
 			if ( get_status_code(url) == requests.codes.ok):
 				bravo_links.append(url)
+				q.put(url)
 			else:
 				rotto_links.append(url)
 			visited_links.append(url)
@@ -57,7 +62,24 @@ def start_crawler(seed_url):
 			else:
 				print 'External Link : ', url
 		print '\n'
-		
+
+def crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
+	process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links)
+	if not q.empty():
+		seed_url = q.get()
+		print "Dequeuing ::", seed_url
+		crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links)
+	return
+
+def start_crawler(seed_url):
+	"""Return the set of rotto links from a seed Url"""
+	bravo_links = []	# a set of all fine/unbroken links
+	rotto_links = []	# a set of all broken links 
+	visited_links = []	# a set of visited links
+	host_url = seed_url # base url 
+
+	q = Queue.Queue()
+	crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links)
 
 	print '\n'
 	print 'Total Bravo Links : ', len(bravo_links)
@@ -68,6 +90,12 @@ def start_crawler(seed_url):
 	print '\n'
 	print 'List of Rotto Links : '
 	print_links(rotto_links)
+	print '\n'
+	print 'List of all Links : '
+	print_links(visited_links)
+	print '\n'
+	print 'List of all href : '
+	print_links(temp_links)
 	print '\n'
 
 def main():
