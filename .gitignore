@@ -54,6 +54,7 @@ docs/_build/
 
 #Crawl Results
 results/
+*.log
 
 #IPython Notebook files
 *.ipynb
