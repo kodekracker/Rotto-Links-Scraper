@@ -36,15 +36,19 @@ def get_status_code(url):
 	return r.status_code
 
 def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
+	"""Adds the Url in a seed Url to Queue """
 	links = get_links(seed_url)
 	for l in links:
 		url = l['href']
-		page, ext = splitext(basename(seed_url))
-		if ext or seed_url.endswith('/'):
-			base_url = seed_url
+		# relative url checking and handling
+		if url.startswith('.'):
+			page, ext = splitext(basename(seed_url))
+			if ext or seed_url.endswith('/'):
+				base_url = seed_url
+			else:
+				base_url = seed_url + '/'
 		else:
-			base_url = seed_url + '/'
-		
+			base_url = seed_url
 		temp_links.append(url)
 		url = urljoin(base_url, url)
 		if url not in visited_links and url.startswith(host_url):
@@ -64,6 +68,7 @@ def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 		print '\n'
 
 def crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
+	"""Crawls the seed Url"""
 	process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links)
 	if not q.empty():
 		seed_url = q.get()
@@ -94,9 +99,9 @@ def start_crawler(seed_url):
 	print 'List of all Links : '
 	print_links(visited_links)
 	print '\n'
-	print 'List of all href : '
+	'''print 'List of all href : '
 	print_links(temp_links)
-	print '\n'
+	print '\n'''
 
 def main():
 	"""Main function of the crawler"""
