@@ -6,6 +6,7 @@ from Queue import Queue
 from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
+from aho import AhoCorasick
 
 def print_links(links):
 	"""Print all the links of a set"""
@@ -65,8 +66,8 @@ def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 			else:
 				print 'Already Visited :', url
 		else:
-			print 'External Link : ', url	
-		print 
+			print 'External Link : ', url
+		print
 
 def crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 	"""Crawls the seed Url"""
@@ -80,9 +81,9 @@ def crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 def start_crawler(seed_url):
 	"""Return the set of rotto links from a seed Url"""
 	bravo_links = []	# a set of all fine/unbroken links
-	rotto_links = []	# a set of all broken links 
+	rotto_links = []	# a set of all broken links
 	visited_links = []	# a set of visited links
-	host_url = seed_url # base url 
+	host_url = seed_url # base url
 
 	q = Queue()
 	crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links)
