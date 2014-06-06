@@ -7,8 +7,6 @@ from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
 
-temp_links = []
-
 def print_links(links):
 	"""Print all the links of a set"""
 	cnt = 1
@@ -16,11 +14,11 @@ def print_links(links):
 		print str(cnt)+') '+l
 		cnt += 1
 
-def get_object(url):
-	"""Return the requests object of a Url"""
+def get_html(url):
+	"""Return the html of a url page"""
 	headers = {'User-agent': 'Mozilla/5.0'}
 	r = requests.get(url,headers=headers)
-	return r
+	return r.text
 
 def get_links(html):
 	"""Return the set of links from a html text"""
@@ -33,38 +31,42 @@ def get_status_code(url):
 	r = requests.head(url)
 	return r.status_code
 
+def get_absolute_url(base_url,relative_url):
+	"""Return the absolute url from relative url"""
+	# relative url checking and handling
+	absolute_url = ""
+	if relative_url.startswith('.'):
+		page, ext = splitext(basename(base_url))
+		if ext or base_url.endswith('/'):
+			base_url = base_url[:]
+		else:
+			base_url = base_url[:] + '/'
+	absolute_url = urljoin(base_url, relative_url)
+	return absolute_url
+
 def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 	"""Adds the Url in a seed Url to Queue """
-	html = get_object(seed_url).text
+	base_url = seed_url
+	html = get_html(seed_url)
 	links = get_links(html)
 	for l in links:
-		url = l['href']
-		# relative url checking and handling
-		if url.startswith('.'):
-			page, ext = splitext(basename(seed_url))
-			if ext or seed_url.endswith('/'):
-				base_url = seed_url
+		url = get_absolute_url(base_url, l['href'])
+		if url.startswith(host_url):
+			if url not in visited_links:
+				print 'Checking Url Status: ', url
+				status_code = get_status_code(url)
+				print 'Status:: ', status_code
+				if ( status_code == requests.codes.ok):
+					bravo_links.append(url)
+					q.put(url)
+				else:
+					rotto_links.append(url)
+				visited_links.append(url)
 			else:
-				base_url = seed_url + '/'
-		else:
-			base_url = seed_url
-		temp_links.append(url)
-		url = urljoin(base_url, url)
-		if url not in visited_links and url.startswith(host_url):
-			print 'Checking Url Status: ', url
-			print 'Status:: ',get_status_code(url)
-			if ( get_status_code(url) == requests.codes.ok):
-				bravo_links.append(url)
-				q.put(url)
-			else:
-				rotto_links.append(url)
-			visited_links.append(url)
-		else:
-			if url in visited_links:
 				print 'Already Visited :', url
-			else:
-				print 'External Link : ', url
-		print '\n'
+		else:
+			print 'External Link : ', url	
+		print 
 
 def crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 	"""Crawls the seed Url"""
@@ -98,9 +100,6 @@ def start_crawler(seed_url):
 	print 'List of all Links : '
 	print_links(visited_links)
 	print '\n'
-	'''print 'List of all href : '
-	print_links(temp_links)
-	print '\n'''
 
 def main():
 	"""Main function of the crawler"""
