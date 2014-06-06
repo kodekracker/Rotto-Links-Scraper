@@ -1,9 +1,8 @@
 #! /usr/bin/python
 
-
-import Queue
 import requests
 import urllib2
+from Queue import Queue
 from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
@@ -23,21 +22,21 @@ def get_object(url):
 	r = requests.get(url,headers=headers)
 	return r
 
-def get_links(url):
-	"""Return the set of links from a particular Url"""
-	r = get_object(url)
-	soup = BeautifulSoup(r.text)
+def get_links(html):
+	"""Return the set of links from a html text"""
+	soup = BeautifulSoup(html)
 	links = soup.find_all('a', href=True)
 	return links
 
 def get_status_code(url):
 	"""Return the status code of a given Url"""
-	r = get_object(url)
+	r = requests.head(url)
 	return r.status_code
 
 def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 	"""Adds the Url in a seed Url to Queue """
-	links = get_links(seed_url)
+	html = get_object(seed_url).text
+	links = get_links(html)
 	for l in links:
 		url = l['href']
 		# relative url checking and handling
@@ -83,7 +82,7 @@ def start_crawler(seed_url):
 	visited_links = []	# a set of visited links
 	host_url = seed_url # base url 
 
-	q = Queue.Queue()
+	q = Queue()
 	crawler(host_url,seed_url,q,bravo_links,rotto_links,visited_links)
 
 	print '\n'
