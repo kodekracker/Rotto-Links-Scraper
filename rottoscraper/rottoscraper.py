@@ -1,7 +1,9 @@
 #! /usr/bin/python
 
+
 import requests
 import urllib2
+import nltk
 from Queue import Queue
 from bs4 import BeautifulSoup
 from urlparse import urljoin
@@ -13,6 +15,24 @@ def print_links(links):
 	for l in links:
 		print str(cnt)+') '+l
 		cnt += 1
+'''
+import nltk   
+from urllib2 import urlopen
+
+url = "http://kodekracker.github.io"
+html = urlopen(url).read()    
+raw = nltk.clean_html(html)  
+print ' '.join(raw.split())
+
+'''
+
+def get_text(url,html):
+	raw_content = nltk.clean_html(html)
+	content = ' '.join(raw_content.split())
+	with open("data.txt","a") as file_data:
+		file_data.write(content)
+		file_data.write("\n........")
+
 
 def get_html(url):
 	"""Return the html of a url page"""
@@ -61,6 +81,8 @@ def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 					q.put(url)
 				else:
 					rotto_links.append(url)
+					# code for text retrieval from baseurl and searching key
+					get_text(base_url,html)
 				visited_links.append(url)
 			else:
 				print 'Already Visited :', url
