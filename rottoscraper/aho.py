@@ -3,32 +3,34 @@
 
 from collections import deque
 
-class Node :
-    def __init__(self, ch=None) :
+
+class Node:
+    def __init__(self, ch=None):
         self.char = ch
         self.transitions = []
         self.results = []
         self.fail = None
 
-class AhoCorasick :
 
-    def __init__(self) :
+class AhoCorasick:
+
+    def __init__(self):
         self.terms = []
         self.root = None
 
-    def addKeyword(self, term) :
+    def addKeyword(self, term):
         self.terms.append(term)
 
-    def makeKeywordTree(self) :
+    def makeKeywordTree(self):
         # Create the root node and queue for failure paths
         root = Node('R')
         root.fail = root
         queue = deque([root])
 
         # Create the initial tree
-        for keyword in self.terms :
+        for keyword in self.terms:
             current_node = root
-            for ch in keyword :
+            for ch in keyword:
                 new_node = None
                 for transition in current_node.transitions:
                     if transition.char == ch:
@@ -60,26 +62,29 @@ class AhoCorasick :
         # tree has been built! return it
         self.root = root
 
-    def searchKeywords(self, text=None) :
+    def searchKeywords(self, text=None):
         hits = []
         currentNode = self.root
 
         # Loop through characters
-        for c in text :
+        for c in text:
             # Find next state (if no transition exists, fail function is used)
             # walks through tree until transition is found or root is reached
             trans = None
-            while trans == None :
+            while trans is None:
                 # trans=currentNode.GetTransition(text[index])
-                for x in currentNode.transitions :
-                    if x.char == c :
+                for x in currentNode.transitions:
+                    if x.char == c:
                         trans = x
-                if currentNode == self.root : break
-                if trans==None : currentNode=currentNode.fail
+                if currentNode == self.root:
+                    break
+                if trans is None:
+                    currentNode = currentNode.fail
 
-            if trans != None : currentNode=trans
+            if trans is not None:
+                currentNode = trans
             # Add results from node to output array and move to next character
-            for result in currentNode.results :
+            for result in currentNode.results:
                 hits.append(result)
 
         # Convert results to array
