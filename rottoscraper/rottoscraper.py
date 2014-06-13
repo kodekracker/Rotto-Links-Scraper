@@ -20,9 +20,13 @@ def print_links(links):
 def get_text(url,html):
 	raw_content = nltk.clean_html(html)
 	content = u' '.join(raw_content.split()).encode('utf-8')
+	return content
+	#If data need to write in a file , then next code will do just fine..
+	'''
 	with open("data.txt","a") as file_data:
 		file_data.write(content)
 		file_data.write("\n........")
+	'''
 
 
 def get_html(url):
@@ -72,8 +76,12 @@ def process_queue(host_url,seed_url,q,bravo_links,rotto_links,visited_links):
 					q.put(url)
 				else:
 					rotto_links.append(url)
-					# code for text retrieval from baseurl and searching key
-					get_text(base_url,html)
+					''' code for text retrieval from baseurl and searching key
+						page_text contain text of all current page | implement
+						search algo..
+					'''
+					page_text = get_text(base_url,html) 
+
 				visited_links.append(url)
 			else:
 				print 'Already Visited :', url
