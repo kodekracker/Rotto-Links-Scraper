@@ -16,16 +16,6 @@ def print_links(links):
 	for l in links:
 		print str(cnt)+') '+l
 		cnt += 1
-'''
-import nltk   
-from urllib2 import urlopen
-
-url = "http://kodekracker.github.io"
-html = urlopen(url).read()    
-raw = nltk.clean_html(html)  
-print ' '.join(raw.split())
-
-'''
 
 def get_text(url,html):
 	raw_content = nltk.clean_html(html)
