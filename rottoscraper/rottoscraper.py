@@ -1,5 +1,5 @@
 #! /usr/bin/python
-
+# coding: utf-8
 
 import requests
 import urllib2
@@ -29,7 +29,7 @@ print ' '.join(raw.split())
 
 def get_text(url,html):
 	raw_content = nltk.clean_html(html)
-	content = ' '.join(raw_content.split())
+	content = u' '.join(raw_content.split()).encode('utf-8')
 	with open("data.txt","a") as file_data:
 		file_data.write(content)
 		file_data.write("\n........")
@@ -49,7 +49,7 @@ def get_links(html):
 
 def get_status_code(url):
 	"""Return the status code of a given Url"""
-	r = requests.head(url)
+	r = requests.get(url)
 	return r.status_code
 
 def get_absolute_url(base_url,relative_url):
