@@ -18,10 +18,10 @@ class AhoCorasick:
         self.terms = []
         self.root = None
 
-    def addKeyword(self, term):
+    def add_keyword(self, term):
         self.terms.append(term)
 
-    def makeKeywordTree(self):
+    def make_keyword_tree(self):
         # Create the root node and queue for failure paths
         root = Node('R')
         root.fail = root
@@ -62,7 +62,7 @@ class AhoCorasick:
         # tree has been built! return it
         self.root = root
 
-    def searchKeywords(self, text=None):
+    def search_keywords(self, text=None):
         hits = []
         currentNode = self.root
 
