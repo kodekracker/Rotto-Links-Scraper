@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # coding: utf-8
 
-
+# 'Rotto' refer to rotten|broken links
 
 import requests
 import urllib2
