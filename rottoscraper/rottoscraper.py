@@ -1,6 +1,8 @@
 #! /usr/bin/python
 # coding: utf-8
 
+
+
 import requests
 import urllib2
 import nltk
@@ -68,7 +70,6 @@ class Crawler:
 				if url not in self.visited_links:
 					#print 'Checking Url Status: ', url
 					status_code = get_status_code(url)
-					#print 'Status:: ', status_code
 					if ( isLinkOk(status_code) ):
 						self.bravo_links.append(url)
 						self.q.put(url)
@@ -191,7 +192,7 @@ def clean(str):
 def main():
 	"""Main function of the crawler"""
 	seed_url = raw_input("Enter the seed url: ")
-	line = raw_input("Enter the keywords(Use ',' to seperate keywords): ")
+	line = raw_input("Enter the keywords(Use ',' to seperate words): ")
 	keywords = line.split(',')
 	keywords = map(clean, keywords)
 	print 'Crawler Starts..........'
