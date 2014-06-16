@@ -92,7 +92,7 @@ class Crawler:
 		self.process_queue()
 		if not self.q.empty():
 			self.seed_url = self.q.get()
-			#print "Dequeuing ::", self.seed_url
+			print "Dequeuing ::", self.seed_url
 			self.crawl_url()
 		return
 
@@ -102,7 +102,9 @@ class Crawler:
 		print 'Please Wait While the Seed URL is processing.....'
 		print '.................................................'
 		self.crawl_url()
+		print '.................................................'
 		print 'Processing Completed.'
+		print
 		self.print_results()
 
 	def print_results(self):
@@ -151,6 +153,7 @@ def get_links(html):
 	"""Return the set of links from a html text"""
 	soup = BeautifulSoup(html)
 	links = soup.find_all('a', href=True)
+	links[:] = [l for l in links if not l['href'].startswith('#')]
 	return links
 
 
