@@ -46,10 +46,10 @@ class Crawler:
 			aho.add_keyword(key)
 		aho.make_keyword_tree()
 		matched_keys = aho.search_keywords(text)
-
+		matched_keys = list(set(matched_keys))
 		# Add Rotto Links to Rotto Object
 		r = Rotto()
-		r.seed_url = base_url
+		r.base_url = base_url
 		r.rotto_links = rotto_links
 		r.keywords = matched_keys
 
@@ -63,12 +63,13 @@ class Crawler:
 		links = get_links(html)
 		rotto_links = [] # a set of all broken links in a particular page
 		for l in links:
+			print '..........',
 			url = get_absolute_url(base_url, l['href'])
 			if url.startswith(self.host_url):
-				if url not in visited_links:
-					print 'Checking Url Status: ', url
+				if url not in self.visited_links:
+					#print 'Checking Url Status: ', url
 					status_code = get_status_code(url)
-					print 'Status:: ', status_code
+					#print 'Status:: ', status_code
 					if ( isLinkOk(status_code) ):
 						self.bravo_links.append(url)
 						self.q.put(url)
@@ -76,10 +77,12 @@ class Crawler:
 						rotto_links.append(url)
 					self.visited_links.append(url)
 				else:
-					print 'Already Visited :', url
+					pass
+					#print 'Already Visited :', url
 			else:
-				print 'External Link : ', url
-			print
+				pass
+				#print 'External Link : ', url
+			#print
 
 		if rotto_links:
 			self.match_keyword(base_url, html, rotto_links)
@@ -90,7 +93,7 @@ class Crawler:
 		self.process_queue()
 		if not self.q.empty():
 			self.seed_url = self.q.get()
-			print "Dequeuing ::", self.seed_url
+			#print "Dequeuing ::", self.seed_url
 			self.crawl_url()
 		return
 
@@ -103,6 +106,7 @@ class Crawler:
 	def print_results(self):
 		if self.res:
 			print '<-----------  Founded Result ------------>'
+			print
 			cnt1 = 1
 			for r in self.res:
 				print cnt1, ') Base Url:- ', r.base_url
@@ -119,7 +123,9 @@ class Crawler:
 				else:
 					print 'No Keyword match'
 				print
+				print
 				cnt1 += 1
+			print
 			print '<------------ End of Result  ------------>'
 		else:
 			print 'No result found.....'

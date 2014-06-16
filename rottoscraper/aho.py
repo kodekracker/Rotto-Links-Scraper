@@ -51,13 +51,10 @@ class AhoCorasick:
             current_node = queue.popleft()
             for node in current_node.transitions:
                 queue.append(node)
-                print 'Add-> ', node.char
                 fail_state_node = current_node.fail
                 while not any(x for x in fail_state_node.transitions if node.char == x.char) and fail_state_node is not root:
                     fail_state_node = fail_state_node.fail
-                    print 'Fail State Node --> ', fail_state_node.char
                 node.fail = next((x for x in fail_state_node.transitions if node.char == x.char and x is not node), root)
-                print 'Node Fail --> ', node.fail.char
                 print
         # tree has been built! return it
         self.root = root
