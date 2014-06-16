@@ -63,7 +63,6 @@ class Crawler:
 		links = get_links(html)
 		rotto_links = [] # a set of all broken links in a particular page
 		for l in links:
-			print '..........',
 			url = get_absolute_url(base_url, l['href'])
 			if url.startswith(self.host_url):
 				if url not in self.visited_links:
@@ -100,12 +99,15 @@ class Crawler:
 
 	def start_crawler(self):
 		"""Return the set of rotto links from a seed Url"""
+		print 'Please Wait While the Seed URL is processing.....'
+		print '.................................................'
 		self.crawl_url()
+		print 'Processing Completed.'
 		self.print_results()
 
 	def print_results(self):
 		if self.res:
-			print '<-----------  Founded Result ------------>'
+			print '<-----------  Result Founded  ------------>'
 			print
 			cnt1 = 1
 			for r in self.res:
@@ -189,10 +191,10 @@ def main():
 	line = raw_input("Enter the keywords(Use ',' to seperate keywords): ")
 	keywords = line.split(',')
 	keywords = map(clean, keywords)
-	print 'Crawler Starts..........\n'
+	print 'Crawler Starts..........'
 	cr = Crawler(seed_url, keywords)
 	cr.start_crawler()
-	print 'Crawler Stops........... \n'
+	print 'Crawler Stops........... '
 
 
 if __name__ == "__main__":
