@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
 from aho import AhoCorasick
+from robotparser import RobotFileParser
 
 class Rotto:
 	'Nothing'
@@ -29,6 +30,7 @@ class Crawler:
 		self.visited_links = []	# a set of visited links
 		self.q = Queue()
 		self.res = [] # a list of rotto result
+		self.rp = None
 
 	def add_seed_url(self, seed_url):
 		"""Add seed url """
@@ -38,6 +40,13 @@ class Crawler:
 	def add_keywords(self, keywords):
 		"""Add keywords """
 		self.keywords = keywords
+
+
+	def set_robot_rule(self):
+		self.rp = RobotFileParser()
+		url  = get_absolute_url(self.host_url,'/robots.txt')
+		self.rp.set_url(url)
+		self.rp.read()
 
 
 	def match_keyword(self, base_url, html, rotto_links):
@@ -66,23 +75,27 @@ class Crawler:
 		rotto_links = [] # a set of all broken links in a particular page
 		for l in links:
 			url = get_absolute_url(base_url, l['href'])
-			if url.startswith(self.host_url):
-				if url not in self.visited_links:
-					#print 'Checking Url Status: ', url
-					status_code = get_status_code(url)
-					if ( isLinkOk(status_code) ):
-						self.bravo_links.append(url)
-						self.q.put(url)
+			if self.rp.can_fetch("*", url):
+				if url.startswith(self.host_url):
+					if url not in self.visited_links:
+						#print 'Checking Url Status: ', url
+						status_code = get_status_code(url)
+						if ( is_link_ok(status_code) ):
+							self.bravo_links.append(url)
+							self.q.put(url)
+						else:
+							rotto_links.append(url)
+						self.visited_links.append(url)
 					else:
-						rotto_links.append(url)
-					self.visited_links.append(url)
+						pass
+						#print 'Already Visited :', url
 				else:
 					pass
-					#print 'Already Visited :', url
+					#print 'External Link : ', url
+				#print
 			else:
 				pass
-				#print 'External Link : ', url
-			#print
+				#print "Not allowed to scrape"
 
 		if rotto_links:
 			self.match_keyword(base_url, html, rotto_links)
@@ -102,6 +115,7 @@ class Crawler:
 		"""Return the set of rotto links from a seed Url"""
 		print 'Please Wait While the Seed URL is processing.....'
 		print '.................................................'
+		self.set_robot_rule()
 		self.crawl_url()
 		print '.................................................'
 		print 'Processing Completed.'
@@ -163,12 +177,14 @@ def get_status_code(url):
 	r = requests.get(url)
 	return r.status_code
 
-def isLinkOk(status_code):
+def is_link_ok(status_code):
 	"""Return the status of link"""
 	if status_code >= 400:
 		return False
 	else:
 		return True
+
+
 
 
 def get_absolute_url(base_url,relative_url):
