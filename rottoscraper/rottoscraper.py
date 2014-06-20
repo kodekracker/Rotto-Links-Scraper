@@ -1,11 +1,13 @@
 #! /usr/bin/python
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 # 'Rotto' refer to rotten|broken links
 
 import requests
 import urllib2
 import nltk
+import time
+import threading
 from Queue import Queue
 from bs4 import BeautifulSoup
 from urlparse import urljoin
@@ -22,13 +24,12 @@ class Rotto:
 
 class Crawler:
 	'Find the rotto links in a given seed url'
-	def __init__(self,seed_url=None,keywords=[]):
-		self.host_url = seed_url
-		self.seed_url = seed_url
+	def __init__(self,host_url=None,keywords=[]):
+		self.host_url = host_url
 		self.keywords = keywords
-		self.bravo_links = []	# a set of all fine/unbroken links
-		self.visited_links = []	# a set of visited links
-		self.q = Queue()
+		self.queue = Queue()
+		self.queue.put(self.host_url)
+		self.visited_links = set([self.host_url])	# a set of visited links
 		self.res = [] # a list of rotto result
 		self.rp = None
 
@@ -67,10 +68,10 @@ class Crawler:
 		self.res.append(r)
 
 
-	def process_queue(self):
+	def fill_queue(self, seed_url):
 		"""Adds the Url in a seed Url to Queue """
-		base_url = self.seed_url
-		html = get_html(self.seed_url)
+		base_url = seed_url
+		html = get_html(seed_url)
 		links = get_links(html)
 		rotto_links = [] # a set of all broken links in a particular page
 		for l in links:
@@ -78,24 +79,22 @@ class Crawler:
 			if self.rp.can_fetch("*", url):
 				if url.startswith(self.host_url):
 					if url not in self.visited_links:
-						#print 'Checking Url Status: ', url
+						#	Checking Url Status:  url
 						status_code = get_status_code(url)
 						if ( is_link_ok(status_code) ):
-							self.bravo_links.append(url)
-							self.q.put(url)
+							self.queue.put(url)
 						else:
 							rotto_links.append(url)
-						self.visited_links.append(url)
+						self.visited_links.add(url)
 					else:
 						pass
-						#print 'Already Visited :', url
+						#	Already Visited : url
 				else:
 					pass
-					#print 'External Link : ', url
-				#print
+					#	External Link :  url
 			else:
 				pass
-				#print "Not allowed to scrape"
+				#	Not allowed to scrape
 
 		if rotto_links:
 			self.match_keyword(base_url, html, rotto_links)
@@ -103,24 +102,13 @@ class Crawler:
 
 	def crawl_url(self):
 		"""Crawls the seed Url"""
-		self.process_queue()
-		if not self.q.empty():
-			self.seed_url = self.q.get()
-			print "Dequeuing ::", self.seed_url
-			self.crawl_url()
-		return
+		while True:
+			seed_url = self.queue.get()
+			print "%s Dequed :: %s" % (threading.currentThread().getName(), seed_url)
+			self.fill_queue(seed_url)
+			self.queue.task_done()
+		print '%s Ends----' % (threading.currentThread().getName())
 
-
-	def start_crawler(self):
-		"""Return the set of rotto links from a seed Url"""
-		print 'Please Wait While the Seed URL is processing.....'
-		print '.................................................'
-		self.set_robot_rule()
-		self.crawl_url()
-		print '.................................................'
-		print 'Processing Completed.'
-		print
-		self.print_results()
 
 	def print_results(self):
 		if self.res:
@@ -138,7 +126,8 @@ class Crawler:
 				print '    Keyword Matched:- ',
 				if r.keywords:
 					for k in r.keywords:
-						print k,', ',
+						if k:
+							print k,', ',
 				else:
 					print 'No Keyword match'
 				print
@@ -185,8 +174,6 @@ def is_link_ok(status_code):
 		return True
 
 
-
-
 def get_absolute_url(base_url,relative_url):
 	"""Return the absolute url from relative url"""
 	# relative url checking and handling
@@ -205,6 +192,7 @@ def clean(str):
 	return str.strip().lower()
 
 
+lock = threading.Lock()
 def main():
 	"""Main function of the crawler"""
 	seed_url = raw_input("Enter the seed url: ")
@@ -213,9 +201,22 @@ def main():
 	keywords = map(clean, keywords)
 	print 'Crawler Starts..........'
 	cr = Crawler(seed_url, keywords)
-	cr.start_crawler()
+	cr.set_robot_rule()
+	num_of_threads = 10
+	for i in range(num_of_threads):
+		thread_Name = 'Thread-%d' % (i)
+		t = threading.Thread(name=thread_Name,target=cr.crawl_url)
+		t.setDaemon(True)
+		t.start()
+	cr.queue.join()
+	print 'Processing Completed.'
+	print
+	cr.print_results()
 	print 'Crawler Stops........... '
 
 
 if __name__ == "__main__":
+	start_time = time.time()
 	main()
+	print "\nElapsed Time: %s sec. " % (time.time() - start_time)
+
