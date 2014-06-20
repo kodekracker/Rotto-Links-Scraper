@@ -56,5 +56,9 @@ docs/_build/
 results/
 *.log
 
+#complied files
+*.pyc
+
+
 #IPython Notebook files
 *.ipynb
