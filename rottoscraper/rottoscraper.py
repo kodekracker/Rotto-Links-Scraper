@@ -104,10 +104,9 @@ class Crawler:
 		"""Crawls the seed Url"""
 		while True:
 			seed_url = self.queue.get()
-			print "%s Dequed :: %s" % (threading.currentThread().getName(), seed_url)
+			print "%s Dequed :: %s at %s" % (threading.currentThread().getName(), seed_url, time.ctime())
 			self.fill_queue(seed_url)
 			self.queue.task_done()
-		print '%s Ends----' % (threading.currentThread().getName())
 
 
 	def print_results(self):
@@ -199,7 +198,7 @@ def main():
 	line = raw_input("Enter the keywords(Use ',' to seperate words): ")
 	keywords = line.split(',')
 	keywords = map(clean, keywords)
-	print 'Crawler Starts..........'
+	print '\nCrawler Starts..........'
 	cr = Crawler(seed_url, keywords)
 	cr.set_robot_rule()
 	num_of_threads = 10
@@ -209,14 +208,13 @@ def main():
 		t.setDaemon(True)
 		t.start()
 	cr.queue.join()
-	print 'Processing Completed.'
+	print '\nProcessing Completed.'
 	print
 	cr.print_results()
-	print 'Crawler Stops........... '
+	print '\nCrawler Stops........... '
 
 
 if __name__ == "__main__":
 	start_time = time.time()
 	main()
 	print "\nElapsed Time: %s sec. " % (time.time() - start_time)
-
