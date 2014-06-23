@@ -2,12 +2,17 @@
    margin: 0px;
    padding: 0px;
 }
+html{ height: 100%;
+    width: 100%; }
 
 body {
     background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAB9JREFUeNpi/P//PwM6YGLAAuCCmpqacC2MRGsHCDAA+fIHfeQbO8kAAAAASUVORK5CYII=);
     font: 13px 'Lucida sans', Arial, Helvetica;
     color: #eee;
     text-align: center;
+    height: 99%;
+
+
 }
 
 a {
@@ -16,31 +21,31 @@ a {
 
 header{
 	overflow: hidden;
-	margin-top: 0.3em;
+	margin : 0.4% 0% 0% 0%;
 	background-color: rgb(37, 36, 44);
 	text-align: center;
 	letter-spacing: 1px;
-	height: 2em;
+	height: 6%;
 	padding: 1em;
 	font-size: 1.7em;
 	color: #E0D9D9;
 }
 
 .main{
-	min-height: 300px;
+    position: relative;
+	height: 58%;
 }
 
 footer{
 	background-color: rgb(37, 36, 44);
 	text-align: center;
-	height: auto;
+	height: 10%;
 	padding: 0.5em;
 	font-weight: bold;
 	font-size: 1.2em;
 	color: #E0D9D9;
 	line-height: 1.8em;
 	position: relative;
-	margin-top: 6.5em;
 }
 
 footer a{
@@ -80,7 +85,7 @@ footer small{
 .form-wrapper {
     width: 450px;
     padding: 15px;
-    margin: 150px auto 50px auto;
+    margin: 8% 0% 2% 30%;
     background: #444;
     background: rgba(0,0,0,.2);
     -moz-border-radius: 10px;
