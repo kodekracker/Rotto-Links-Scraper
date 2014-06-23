@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # 'Rotto' refer to rotten|broken links
@@ -27,9 +27,7 @@ class Crawler:
 	def __init__(self,host_url=None,keywords=[]):
 		self.host_url = host_url
 		self.keywords = keywords
-		self.queue = Queue()
-		self.queue.put(self.host_url)
-		self.visited_links = set([self.host_url])	# a set of visited links
+		self.visited_links = set()	# a set of visited links
 		self.res = [] # a list of rotto result
 		self.rp = None
 
@@ -44,6 +42,7 @@ class Crawler:
 
 
 	def set_robot_rule(self):
+		"""Set the robots.txt rules"""
 		self.rp = RobotFileParser()
 		url  = get_absolute_url(self.host_url,'/robots.txt')
 		self.rp.set_url(url)
@@ -68,7 +67,7 @@ class Crawler:
 		self.res.append(r)
 
 
-	def fill_queue(self, seed_url):
+	def fill_queue(self, seed_url, queue):
 		"""Adds the Url in a seed Url to Queue """
 		base_url = seed_url
 		html = get_html(seed_url)
@@ -79,16 +78,17 @@ class Crawler:
 			if self.rp.can_fetch("*", url):
 				if url.startswith(self.host_url):
 					if url not in self.visited_links:
-						#	Checking Url Status:  url
 						status_code = get_status_code(url)
 						if ( is_link_ok(status_code) ):
-							self.queue.put(url)
+							lock.acquire()
+							queue.put(url)
+							lock.release()
 						else:
 							rotto_links.append(url)
 						self.visited_links.add(url)
 					else:
 						pass
-						#	Already Visited : url
+						#print	'Already Visited :', url
 				else:
 					pass
 					#	External Link :  url
@@ -100,16 +100,22 @@ class Crawler:
 			self.match_keyword(base_url, html, rotto_links)
 
 
-	def crawl_url(self):
+	def crawl_url(self, queue):
 		"""Crawls the seed Url"""
 		while True:
-			seed_url = self.queue.get()
+			seed_url = queue.get()
 			print "%s Dequed :: %s at %s" % (threading.currentThread().getName(), seed_url, time.ctime())
-			self.fill_queue(seed_url)
-			self.queue.task_done()
+			self.fill_queue(seed_url, queue)
+			queue.task_done()
 
 
 	def print_results(self):
+		print 'Total Visited Links :- %d' % len(self.visited_links)
+		cnt1 = 1
+		for l in self.visited_links:
+			print '\t%d) %s'% (cnt1, l)
+			cnt1 += 1
+		print
 		if self.res:
 			print '<-----------  Result Founded  ------------>'
 			print
@@ -201,13 +207,15 @@ def main():
 	print '\nCrawler Starts..........'
 	cr = Crawler(seed_url, keywords)
 	cr.set_robot_rule()
-	num_of_threads = 10
+	num_of_threads = 1
+	queue = Queue()
+	queue.put(seed_url)
 	for i in range(num_of_threads):
 		thread_Name = 'Thread-%d' % (i)
-		t = threading.Thread(name=thread_Name,target=cr.crawl_url)
+		t = threading.Thread(name=thread_Name, target=cr.crawl_url, args=(queue,))
 		t.setDaemon(True)
 		t.start()
-	cr.queue.join()
+	queue.join()
 	print '\nProcessing Completed.'
 	print
 	cr.print_results()
