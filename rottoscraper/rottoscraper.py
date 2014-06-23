@@ -80,9 +80,7 @@ class Crawler:
 					if url not in self.visited_links:
 						status_code = get_status_code(url)
 						if ( is_link_ok(status_code) ):
-							lock.acquire()
 							queue.put(url)
-							lock.release()
 						else:
 							rotto_links.append(url)
 						self.visited_links.add(url)
@@ -104,7 +102,8 @@ class Crawler:
 		"""Crawls the seed Url"""
 		while True:
 			seed_url = queue.get()
-			print "%s Dequed :: %s at %s" % (threading.currentThread().getName(), seed_url, time.ctime())
+			self.visited_links.add(seed_url)
+			print "%s Dequed :: %-100s \t%s" % (threading.currentThread().getName(), seed_url, time.ctime())
 			self.fill_queue(seed_url, queue)
 			queue.task_done()
 
@@ -197,7 +196,6 @@ def clean(str):
 	return str.strip().lower()
 
 
-lock = threading.Lock()
 def main():
 	"""Main function of the crawler"""
 	seed_url = raw_input("Enter the seed url: ")
@@ -207,7 +205,7 @@ def main():
 	print '\nCrawler Starts..........'
 	cr = Crawler(seed_url, keywords)
 	cr.set_robot_rule()
-	num_of_threads = 1
+	num_of_threads = 5
 	queue = Queue()
 	queue.put(seed_url)
 	for i in range(num_of_threads):
