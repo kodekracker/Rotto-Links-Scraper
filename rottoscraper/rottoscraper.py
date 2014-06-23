@@ -147,7 +147,7 @@ def get_plain_text(html):
 
 def get_html(url):
 	"""Return the html of a url page"""
-	headers = {'User-agent': 'Mozilla/5.0'}
+	headers = {'User-agent': 'Rotto-Scaper'}
 	r = requests.get(url,headers=headers)
 	return r.text
 
