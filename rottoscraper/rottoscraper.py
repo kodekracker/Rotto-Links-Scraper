@@ -3,15 +3,11 @@
 
 # 'Rotto' refer to rotten|broken links
 
-import requests
-import urllib2
-import nltk
+
 import time
 import threading
+import webutil # user defined module
 from Queue import Queue
-from bs4 import BeautifulSoup
-from urlparse import urljoin
-from os.path import splitext, basename
 from aho import AhoCorasick
 from robotparser import RobotFileParser
 
@@ -27,7 +23,7 @@ class Crawler:
 	def __init__(self,host_url=None,keywords=[]):
 		self.host_url = host_url
 		self.keywords = keywords
-		self.visited_links = set()	# a set of visited links
+		self.visited_links = []	# a set of visited links
 		self.res = [] # a list of rotto result
 		self.rp = None
 
@@ -44,14 +40,14 @@ class Crawler:
 	def set_robot_rule(self):
 		"""Set the robots.txt rules"""
 		self.rp = RobotFileParser()
-		url  = get_absolute_url(self.host_url,'/robots.txt')
+		url  = webutil.get_absolute_url(self.host_url,'/robots.txt')
 		self.rp.set_url(url)
 		self.rp.read()
 
 
 	def match_keyword(self, base_url, html, rotto_links):
 		"""Match Keyword in a html"""
-		text = get_plain_text(html)
+		text = webutil.get_plain_text(html)
 		aho = AhoCorasick()
 		for key in self.keywords:
 			aho.add_keyword(key)
@@ -70,22 +66,23 @@ class Crawler:
 	def fill_queue(self, seed_url, queue):
 		"""Adds the Url in a seed Url to Queue """
 		base_url = seed_url
-		html = get_html(seed_url)
-		links = get_links(html)
+		html = webutil.get_html(seed_url)
+		links = webutil.get_links(html)
 		rotto_links = [] # a set of all broken links in a particular page
 		for l in links:
-			url = get_absolute_url(base_url, l['href'])
+			url = webutil.get_absolute_url(base_url, l['href'])
+			lock.acquire()
+			# Start of Critical Section
 			if self.rp.can_fetch("*", url):
 				if url.startswith(self.host_url):
 					if url not in self.visited_links:
-						status_code = get_status_code(url)
-						if ( is_link_ok(status_code) ):
-							lock.acquire()
+						status_code = webutil.get_status_code(url)
+						if ( webutil.is_link_ok(status_code) ):
+							#print 'Putting :: %s' % (url)
 							queue.put(url)
-							lock.release()
 						else:
 							rotto_links.append(url)
-						self.visited_links.add(url)
+						self.visited_links.append(url)
 					else:
 						pass
 						#print	'Already Visited :', url
@@ -95,6 +92,8 @@ class Crawler:
 			else:
 				pass
 				#	Not allowed to scrape
+			# End of Critical Section
+			lock.release()
 
 		if rotto_links:
 			self.match_keyword(base_url, html, rotto_links)
@@ -144,70 +143,17 @@ class Crawler:
 			print 'No result found.....'
 
 
-def get_plain_text(html):
-	"""Return the plain text from a html"""
-	raw_text = nltk.clean_html(html)
-	text = u' '.join(raw_text.split()).encode('utf-8').lower()
-	return text
-
-
-def get_html(url):
-	"""Return the html of a url page"""
-	headers = {'User-agent': 'Rotto-Scaper'}
-	r = requests.get(url,headers=headers)
-	return r.text
-
-
-def get_links(html):
-	"""Return the set of links from a html text"""
-	soup = BeautifulSoup(html)
-	links = soup.find_all('a', href=True)
-	links[:] = [l for l in links if not l['href'].startswith('#')]
-	return links
-
-
-def get_status_code(url):
-	"""Return the status code of a given Url"""
-	r = requests.get(url)
-	return r.status_code
-
-def is_link_ok(status_code):
-	"""Return the status of link"""
-	if status_code >= 400:
-		return False
-	else:
-		return True
-
-
-def get_absolute_url(base_url,relative_url):
-	"""Return the absolute url from relative url"""
-	# relative url checking and handling
-	absolute_url = ""
-	if relative_url.startswith('.'):
-		page, ext = splitext(basename(base_url))
-		if ext or base_url.endswith('/'):
-			base_url = base_url[:]
-		else:
-			base_url = base_url[:] + '/'
-	absolute_url = urljoin(base_url, relative_url)
-	return absolute_url
-
-
-def clean(str):
-	return str.strip().lower()
-
-
 lock = threading.Lock()
 def main():
 	"""Main function of the crawler"""
 	seed_url = raw_input("Enter the seed url: ")
 	line = raw_input("Enter the keywords(Use ',' to seperate words): ")
 	keywords = line.split(',')
-	keywords = map(clean, keywords)
+	keywords = map(webutil.clean, keywords)
 	print '\nCrawler Starts..........'
 	cr = Crawler(seed_url, keywords)
 	cr.set_robot_rule()
-	num_of_threads = 1
+	num_of_threads = 5
 	queue = Queue()
 	queue.put(seed_url)
 	for i in range(num_of_threads):
