@@ -1,0 +1,15 @@
+//asdf
+$(document).ready(function(){
+	$('#step-1').click(function(){
+		$('#input-first,#input-submit').css("display","none");
+		$('#input-second').css("display","inline");
+	});
+	$('#step-2').click(function(){
+		$('#input-first,#input-second').css("display","none");
+		$('#input-submit').css("display","inline");
+	});
+	$('#step-3').click(function(){
+		$('#request-panel').css("display","none");
+		$('#response-panel').css({"display":"inline-block"});
+	});
+});
