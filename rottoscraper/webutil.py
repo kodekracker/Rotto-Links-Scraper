@@ -48,6 +48,9 @@ def get_absolute_url(base_url,relative_url):
     """Return the absolute url from relative url"""
     # relative url checking and handling
     absolute_url = ""
+    index = relative_url.find('?')
+    if index > 0 :
+        relative_url = relative_url[:index]
     if relative_url.startswith('.'):
         page, ext = splitext(basename(base_url))
         if ext or base_url.endswith('/'):
