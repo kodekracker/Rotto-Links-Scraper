@@ -3,9 +3,9 @@
    padding: 0px;
 }
 
-html{ height: 100%;
+/*html{ height: 100%;
     width: 100%; }
-
+*/
 body {
     background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAB9JREFUeNpi/P//PwM6YGLAAuCCmpqacC2MRGsHCDAA+fIHfeQbO8kAAAAASUVORK5CYII=);
     font: 13px 'Lucida sans', Arial, Helvetica;
@@ -19,33 +19,27 @@ a {
 }
 
 header{
-    overflow: hidden;
-    margin : 0.4% 0% 0% 0%;
-    background-color: rgb(37, 36, 44);
+    position: absolute;
+    top:0%;
+    width: 100%;
+    background-color: rgba(37, 36, 44,0.7);
     text-align: center;
     letter-spacing: 1px;
-    height: 6%;
     padding: 1em;
     font-size: 1.7em;
     color: #E0D9D9;
 }
 
-.main{
-    position: relative;
-    width: 100%;
-    height: 75%;
-}
-
 footer{
-    background-color: rgb(37, 36, 44);
+    position: absolute;
+    width: 100%;
+    bottom: 0%;
+    background-color: rgba(37, 36, 44,0.7);
     text-align: center;
-    height: 10%;
     padding: 0.5em;
-    font-weight: bold;
     font-size: 1.2em;
     color: #E0D9D9;
     line-height: 1.8em;
-    position: relative;
 }
 
 footer a{
@@ -80,39 +74,36 @@ footer small{
   zoom:1;
 }
 /*------------Newly added CSS to divide process-------------------------*/
-#request-panel{
-    width: 56%;
-    margin: 10% 0 0 0;
+.rm-padding{
+    padding: 0;
+}
+
+.wrapper{
+    overflow:hidden;
+    margin-top: 220px;
+}
+.content{
+    margin: auto;
+    text-align: center;
+    width: 660px;
     position: relative;
-    display: inline-block;
+    height: 100%;
 }
 
-
-#input-first{
-    display: inline;
-    
+.steps{
+    width: 3000px;
+    overflow: hidden;
+}
+.step{
+    float: left;
+    width: 570px;
+    overflow: hidden;
 }
 
-#input-second{
-    display: none;
-    
-}
+/*-------------------------------------*/
 
-#input-submit{
-    display: none;
-    
-}
-
-#response-panel{
-    display: none;
-    width: 50%;
-    margin: 10% 0 0 0;
-    position: relative;
-}
-
-/*-------------------------------------*/   
-
-.form-wrapper , #response-panel{
+.form-wrapper {
+    width:660px;
     padding: 15px;
     background: #444;
     background: rgba(0,0,0,.2);
@@ -129,18 +120,25 @@ footer small{
     font-size: 1.3em;
 }
 
+.form-wrapper label{
+    width: 100px;
+    font-size: 1.2em;
+    margin: 0;
+    float: left;
+    padding: 10px 0px;
+}
 .form-wrapper input {
-    width: 464px;
-    height: 20px;
+    width: 400px;
+    height:38px;
+    float:left;
     padding: 10px 5px;
-    float: left;    
     font: bold 15px 'lucida sans', 'trebuchet MS', 'Tahoma';
     border: 0;
     background: #eee;
     -moz-border-radius: 3px 0 0 3px;
     -webkit-border-radius: 3px 0 0 3px;
     border-radius: 3px 0 0 3px;
-    border-bottom: 2px solid #000;    
+    border-bottom: 2px solid #000;
 }
 
 .form-wrapper input:focus {
@@ -167,13 +165,11 @@ footer small{
     color: #999;
     font-weight: normal;
     font-style: italic;
-}    
+}
 
-.form-wrapper button, .next{
-    overflow: visible;
+.form-wrapper button{
     position: relative;
-    float: right;
-    margin: -6% 0%;
+    float: left;
     border: 0;
     padding: 0;
     cursor: pointer;
@@ -185,17 +181,17 @@ footer small{
     background: #d83c3c;
     -moz-border-radius: 0 3px 3px 0;
     -webkit-border-radius: 0 3px 3px 0;
-    border-radius: 0 3px 3px 0;      
+    border-radius: 0 3px 3px 0;
     text-shadow: 0 -1px 0 rgba(0, 0 ,0, .3);
-}   
-  
-.form-wrapper button:hover , .next:hover{       
+}
+
+.form-wrapper button:hover , .next:hover{
     background: #e54040;
-}   
-  
+}
+
 .form-wrapper button:active,
-.form-wrapper button:focus{   
-    background: #c42f2f;    
+.form-wrapper button:focus{
+    background: #c42f2f;
 }
 
 .form-wrapper button:before , .next:before{
@@ -214,7 +210,7 @@ footer small{
 
 .form-wrapper button:focus:before{
     border-right-color: #c42f2f;
-}    
+}
 
 .form-wrapper button::-moz-focus-inner {
     border: 0;

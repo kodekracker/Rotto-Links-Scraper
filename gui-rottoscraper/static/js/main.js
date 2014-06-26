@@ -1,15 +1,11 @@
 //asdf
 $(document).ready(function(){
-	$('#step-1').click(function(){
-		$('#input-first,#input-submit').css("display","none");
-		$('#input-second').css("display","inline");
+
+	$(".btn").click(function(e){
+		var $this   = $(this);
+		$(".steps").animate({"margin-left":"-=660px"},500, function(){
+			// callback action
+		});
 	});
-	$('#step-2').click(function(){
-		$('#input-first,#input-second').css("display","none");
-		$('#input-submit').css("display","inline");
-	});
-	$('#step-3').click(function(){
-		$('#request-panel').css("display","none");
-		$('#response-panel').css({"display":"inline-block"});
-	});
+	e.preventDefault();
 });

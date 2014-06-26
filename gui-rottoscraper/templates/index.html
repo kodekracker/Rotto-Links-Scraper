@@ -1,87 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Link Crawler</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.1.js') }}" ></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
-</head>
-
-<body>
-<header>
-    <h2>Testing Phase - Link Crawler</h2>
-</header>
-<div class="main">
-    <div id="request-panel">
-        <form class="form-wrapper cf">
-            <div id="input-first">
-                <table>
-                    <tr>
-                        <th>Website-URL &bull;&nbsp;</th>
-                    	<td>
-                            <input type="url" placeholder="Start with http://..." required>
-                        </td>
-                    </tr>
-                </table>
-                <div class="next" id="step-1">
-                    <span>Next</span>
+{% extends "layout.html" %}
+{% block body %}
+    <div class="wrapper">
+        <div class="steps">
+            <form role="form" class="">
+                <div class="form-wrapper step selected">
+                    <label class="" for="url">URL</label>
+                    <input type="url" class="form-control" placeholder="Start with http://..." required>
+                    <button class="btn btn-default" >Next</button>
                 </div>
-            </div>
-
-            <div id="input-second">
-                <table>
-                    <tr>
-                        <th>Keywords &bull;&nbsp;</th>
-                        <td>
-                            <input type="text" placeholder="Enter keywords to query..." required>
-                        </td>
-                    </tr>
-                </table>
-                <div class="next" id="step-2">
-                    <span>Next</span>
+                <div class="form-wrapper step">
+                    <label class="" for="url">Keywords</label>
+                    <input type="url" class="form-control" placeholder="Enter Keywords" required>
+                    <button class="btn btn-default">Next</button>
                 </div>
-            </div>
-
-            <div id="input-submit">
-                <table>
-                    <tr>
-                        <th>Email Id &bull;&nbsp;</th>
-                        <td>
-                            <input type="email" placeholder="Mention your Email-Id..." required>
-                        </td>
-                    </tr>
-                </table>
-                <button id="step-3" type="submit" >Process</button>
-            </div>
-
-        </form>
-    </div>
-    <div id="response-panel">
-        <h3>Your Request In Queue</h3>
-        <p>We will get back to you soon with some result. Check mail after few moments</p>
-    </div>
-</div>
-
-<footer id="foot">
-    <div id="nav-left">
-        <nav>
-            <a href="">About</a>
-            <div class="space">&nbsp; &nbsp; | &nbsp; &nbsp; </div>
-            <a href="#">Help</a>
-            <div class="space">&nbsp; &nbsp; | &nbsp; &nbsp; </div>
-            <a href="#">Privacy Terms</a>
-            <div class="space">&nbsp; &nbsp; | &nbsp; &nbsp; </div>
-            <a href="">Support</a>
-            <div class="space">&nbsp; &nbsp; | &nbsp; &nbsp; </div>
-            <a href="">Team</a>
-        </nav>
-        <div id="nav-down">
-            <small>Made in Ophio.co.in © 2014 Linkcrawler</small>
+                <div class="form-wrapper step">
+                    <label class="" for="url">Email-Id</label>
+                    <input type="url" class="form-control" placeholder="Enter a email address" required>
+                    <button class="btn btn-default">Submit</button>
+                </div>
+                <div class="form-wrapper step">
+                    <h3>Your Request is in Queue</h3>
+                    <p>We will get back to you soon with some solid result. Checkout your email-Id after few moments</p>
+                </div>
+            </form>
         </div>
     </div>
-
-</footer>
-</body>
-</html>
+{% endblock %}
 
 
