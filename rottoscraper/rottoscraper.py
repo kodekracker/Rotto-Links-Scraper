@@ -11,6 +11,8 @@ from Queue import Queue
 from aho import AhoCorasick
 from robotparser import RobotFileParser
 
+lock = threading.Lock()
+
 class Rotto:
 	'Nothing'
 	def __init__(self):
@@ -144,9 +146,9 @@ class Crawler:
 			print 'No result found.....'
 
 
-lock = threading.Lock()
 def main():
 	"""Main function of the crawler"""
+	start_time = time.time()
 	seed_url = raw_input("Enter the seed url: ")
 	line = raw_input("Enter the keywords(Use ',' to seperate words): ")
 	keywords = line.split(',')
@@ -167,9 +169,8 @@ def main():
 	print
 	cr.print_results()
 	print '\nCrawler Stops........... '
+	print "\nElapsed Time: %s sec. " % (time.time() - start_time)
 
 
 if __name__ == "__main__":
-	start_time = time.time()
 	main()
-	print "\nElapsed Time: %s sec. " % (time.time() - start_time)
