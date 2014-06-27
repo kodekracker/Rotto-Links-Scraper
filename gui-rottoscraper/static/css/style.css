@@ -74,14 +74,7 @@ footer small{
   zoom:1;
 }
 /*------------Newly added CSS to divide process-------------------------*/
-.rm-padding{
-    padding: 0;
-}
 
-.wrapper{
-    overflow:hidden;
-    margin-top: 220px;
-}
 .content{
     margin: auto;
     text-align: center;
@@ -90,6 +83,39 @@ footer small{
     height: 68px;
 }
 
+.wrapper{
+    overflow:hidden;
+    margin-top: 220px;
+}
+
+.boxes{
+
+}
+
+.data-box{
+    font-size: 1.3em;
+    padding: 30px 20px;
+}
+.data{
+    cursor: pointer;
+    height: 35px;
+    padding: 7px;
+    background-color: rgba(44, 42, 42, 0.5);
+    margin: 7px auto;
+    border-radius: 5px;
+    width: 470px;
+    /*border-bottom: 2px solid rgb(21, 194, 21);*/
+}
+.data p{
+    float: left;
+    width: 425px;
+}
+.ok{
+    color: rgb(21, 194, 21);
+}
+.remove{
+    color: #d83c3c;;
+}
 .steps{
     width: 3000px;
     overflow: hidden;
@@ -100,6 +126,12 @@ footer small{
     overflow: hidden;
 }
 
+.ng-invalid.ng-dirty{
+    border-color: #d83c3c;
+}
+.ng-valid.ng-dirty{
+    border-color: rgb(21, 194, 21);
+}
 /*-------------------------------------*/
 
 .form-wrapper {

@@ -12,14 +12,19 @@ from flask import url_for
 from flask import abort
 from flask import render_template
 from flask import flash
+from flask.views import MethodView
+
+class RottoView(MethodView):
+    def get(self):
+        return render_template('main.html')
 
 
 app = Flask(__name__)
 app.config.from_object(settings)
 
-@app.route('/')
-def show_page():
-    return render_template('index.html')
+
+app.add_url_rule('/', view_func=RottoView.as_view('rotto_view'),
+    methods=['GET',])
 
 
 if __name__ == '__main__':
