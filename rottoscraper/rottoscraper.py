@@ -25,7 +25,7 @@ class Crawler:
 	def __init__(self,host_url=None,keywords=[]):
 		self.host_url = host_url
 		self.keywords = keywords
-		self.visited_links = []	# a set of visited links
+		self.visited_links = set()	# a set of visited links
 		self.res = [] # a list of rotto result
 		self.rp = None
 
@@ -84,7 +84,7 @@ class Crawler:
 							queue.put(url)
 						else:
 							rotto_links.append(url)
-						self.visited_links.append(url)
+						self.visited_links.add(url)
 					else:
 						pass
 						#print	'Already Visited :', url
