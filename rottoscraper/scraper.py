@@ -3,12 +3,13 @@
 
 # 'Rotto' refer to rotten|broken links
 
+from __future__ import absolute_import
 
 import time
 import threading
-import webutil # user defined module
+import rottoscraper.webutil as webutil
 from Queue import Queue
-from aho import AhoCorasick
+from rottoscraper.aho import AhoCorasick
 from robotparser import RobotFileParser
 
 lock = threading.Lock()
@@ -30,6 +31,26 @@ class Crawler:
 		self.visited_links = set()	# a set of visited links
 		self.res = [] # a list of rotto result
 		self.rp = None
+		self.queue = Queue()
+		self.aho = AhoCorasick()
+
+	def preInit(self):
+		"""
+			Pre Init instructions for a crawler
+		"""
+		# trim all keywords
+		self.keywords = map(webutil.clean, self.keywords)
+
+		# put seed url in queue
+		self.queue.put(self.host_url)
+
+		# make a keyword tree
+		for key in self.keywords:
+			self.aho.add_keyword(key)
+		self.aho.make_keyword_tree()
+
+		# set robot.txt file rules
+		self.set_robot_rule();
 
 	def add_seed_url(self, seed_url):
 		"""Add seed url """
@@ -52,11 +73,7 @@ class Crawler:
 	def match_keyword(self, base_url, html, rotto_links):
 		"""Match Keyword in a html"""
 		text = webutil.get_plain_text(html)
-		aho = AhoCorasick()
-		for key in self.keywords:
-			aho.add_keyword(key)
-		aho.make_keyword_tree()
-		matched_keys = aho.search_keywords(text)
+		matched_keys = self.aho.search_keywords(text)
 		matched_keys = list(set(matched_keys))
 		# Add Rotto Links to Rotto Object
 		r = Rotto()
@@ -67,7 +84,7 @@ class Crawler:
 		self.res.append(r)
 
 
-	def fill_queue(self, seed_url, queue):
+	def fill_queue(self, seed_url):
 		"""Adds the Url in a seed Url to Queue """
 		base_url = seed_url
 		html = webutil.get_html(seed_url)
@@ -83,7 +100,7 @@ class Crawler:
 						status_code = webutil.get_status_code(url)
 						if ( webutil.is_link_ok(status_code) ):
 							#print 'Putting :: %s' % (url)
-							queue.put(url)
+							self.queue.put(url)
 						else:
 							rotto_links.append(url)
 						self.visited_links.add(url)
@@ -103,17 +120,39 @@ class Crawler:
 			self.match_keyword(base_url, html, rotto_links)
 
 
-	def crawl_url(self, queue):
+	def crawl_url(self):
 		"""Crawls the seed Url"""
 		while True:
-			seed_url = queue.get()
+			seed_url = self.queue.get()
 			self.visited_links.add(seed_url)
 			print "%s Dequed :: %-100s \t%s" % (threading.currentThread().getName(), seed_url, time.ctime())
-			self.fill_queue(seed_url, queue)
-			queue.task_done()
+			self.fill_queue(seed_url)
+			self.queue.task_done()
 
+	def start(self,num_of_threads=5,interval=3):
+		"""
+			Start the crawler
+		"""
+		# execute preInit
+		self.preInit()
+
+		for i in range(num_of_threads):
+			thread_Name = 'Thread-%d' % (i)
+			t = threading.Thread(name=thread_Name, target=self.crawl_url, args=())
+			t.setDaemon(True)
+			t.start()
+		self.queue.join()
+
+	def get_results(self):
+		"""
+			Return the results
+		"""
+		return self.res;
 
 	def print_results(self):
+		"""
+			Print the results
+		"""
 		print 'Total Visited Links :- %d' % len(self.visited_links)
 		cnt1 = 1
 		for l in self.visited_links:
@@ -146,33 +185,3 @@ class Crawler:
 			print '<------------ End of Result  ------------>'
 		else:
 			print 'No result found.....'
-
-
-def main():
-	"""Main function of the crawler"""
-	start_time = time.time()
-	seed_url = raw_input("Enter the seed url: ")
-	line = raw_input("Enter the keywords(Use ',' to seperate words): ")
-	keywords = line.split(',')
-	keywords = map(webutil.clean, keywords)
-	print '\nCrawler Starts..........'
-	cr = Crawler(seed_url, keywords)
-	cr.set_robot_rule()
-	num_of_threads = 5
-	queue = Queue()
-	queue.put(seed_url)
-	for i in range(num_of_threads):
-		thread_Name = 'Thread-%d' % (i)
-		t = threading.Thread(name=thread_Name, target=cr.crawl_url, args=(queue,))
-		t.setDaemon(True)
-		t.start()
-	queue.join()
-	print '\nProcessing Completed.'
-	print
-	cr.print_results()
-	print '\nCrawler Stops........... '
-	print "\nElapsed Time: %s sec. " % (time.time() - start_time)
-
-
-if __name__ == "__main__":
-	main()

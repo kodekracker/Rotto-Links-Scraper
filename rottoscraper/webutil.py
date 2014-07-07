@@ -1,11 +1,14 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 import requests
 import nltk
 from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
+
 
 def get_plain_text(html):
     """Return the plain text from a html"""
@@ -16,9 +19,11 @@ def get_plain_text(html):
 
 def get_html(url):
     """Return the html of a url page"""
-    headers = {'User-agent': 'Rotto-Scaper'}
-    r = requests.get(url,headers=headers)
-    return r.text
+    try:
+        headers = {'User-agent': 'Rotto-Scaper'}
+        r = requests.get(url,headers=headers)
+        return r.text
+    except
 
 
 def get_links(html):
