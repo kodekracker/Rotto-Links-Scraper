@@ -14,14 +14,16 @@ from robotparser import RobotFileParser
 lock = threading.Lock()
 
 class Rotto:
-	'Nothing'
+	""" Data Structure for storing results """
 	def __init__(self):
 		base_url = None
 		rotto_links = []
 		keywords_match = []
 
 class Crawler:
-	'Find the rotto links in a given seed url'
+	"""
+		Find the rotto links in a given seed url
+	"""
 	def __init__(self,host_url=None,keywords=[]):
 		self.host_url = host_url
 		self.keywords = keywords
