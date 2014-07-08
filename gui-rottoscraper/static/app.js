@@ -16,54 +16,43 @@ app.config(['$routeProvider', function($routeProvider){
 /* End of App Configuration   */
 
 /* App Controllers */
-app.controller('RottoController',['$scope',function($scope){
-    $scope.url = 'None';
-    $scope.keywords = 'None';
-    $scope.emailId = 'None';
-    $scope.showForm = true;
+app.controller('RottoController',['$scope','$location',function($scope){
+    $scope.userDetails = {};
+    $scope.isFormComplete = false;
     $scope.showMessage = false;
-    $scope.limit = 10;
-
-    $scope.showNextStep = function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        var id = get_curr_step_id();
-        id = parseInt(id)+1;
-        set_step_selected(id);
-    };
+    $scope.currentStepId = 1;
 
     $scope.showStep = function(id){
-        set_step_selected(id);
+        if(id==2)
+            $scope.userDetails.url = $scope.url || 'None';
+        else if(id==3){
+            $scope.userDetails.keywords = getKeys($scope.keywords) || 'None';
+        }
+
+        $scope.currentStepId = id;
     };
-    $scope.submitForm = function(isValid){
+
+    $scope.confirmFormDetails = function(isValid,data){
         // submit form
+        $scope.userDetails.email = $scope.email || 'None' ;
         if (isValid) {
-            $scope.showForm = false;
-            $scope.showMessage = true;
+
+        console.log($scope.userDetails);
+            $scope.isFormComplete = true;
         }else{
             alert("Please correct all inputs.")
         }
     };
+
+    $scope.submitRequest = function(){
+        $scope.showMessage = true;
+    }
+
+    function getKeys(data){
+        var arr = [];
+        for (var i in data){
+            arr.push(data[i].text)
+        }
+        return arr;
+    };
 }]);
-/* End of App Controllers */
-
-
-/* Utility Fuction */
-function get_cur_step(){
-    var curr_step = $('div').find('.selected');
-    return curr_step;
-}
-function get_curr_step_id(){
-    var curr_step = get_cur_step();
-    var id = curr_step.attr('id');
-    return id;
-}
-function set_step_selected(id) {
-    var marginValue = -(id-1)*660;
-    get_cur_step().removeClass('selected');
-    var step = "[id="+id+"]";
-    $("[id=2]").addClass("selected");
-    $(".steps").animate({"margin-left":marginValue},300, function(){
-        // callback action
-    });
-}

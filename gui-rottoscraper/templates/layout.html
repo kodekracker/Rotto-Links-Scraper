@@ -10,15 +10,13 @@
     <link rel="stylesheet" type="text/css" href="static/css/style.css" />
 </head>
 
-<body>
+<body ng-app="RottoApp">
 
-    <div class="page">
+    <div class="wrapper">
         <header>
             <h2>Rotto Link Scraper V1.0</h2>
         </header>
-        <div class="content">
-            {% block body %}{% endblock %}
-        </div>
+        {% block body %}{% endblock %}
         <footer >
             <div id="nav-left">
                 <nav>
