@@ -1,5 +1,8 @@
 /* Angular JS App File */
-var app = angular.module('RottoApp',['ngTagsInput']);
+var app = angular.module('RottoApp',[
+    'ngRoute',
+    'ngTagsInput'
+    ]);
 
 /* App Configuration */
 

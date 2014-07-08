@@ -3,15 +3,13 @@
    padding: 0px;
 }
 
-/*html{ height: 100%;
-    width: 100%; }
-*/
 body {
     background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAB9JREFUeNpi/P//PwM6YGLAAuCCmpqacC2MRGsHCDAA+fIHfeQbO8kAAAAASUVORK5CYII=);
     font: 13px 'Lucida sans', Arial, Helvetica;
     color: #eee;
     text-align: center;
     height: 99%;
+    background-color: #5A5A5A;
 }
 
 a {
@@ -170,7 +168,7 @@ footer small{
     -moz-border-radius: 3px 0 0 3px;
     -webkit-border-radius: 3px 0 0 3px;
     border-radius: 3px 0 0 3px;
-    border-bottom: 2px solid #000;
+    /*border-bottom: 2px solid #000;*/
 }
 
 .form-wrapper input:focus {
@@ -249,3 +247,35 @@ footer small{
     padding: 0;
 }
 
+/***** ngInput New Css *******/
+.host{
+    color: #000000;
+    position: relative;
+    width: 400px;
+    height: 38px;
+    float: left;
+    margin: 0 !important;
+}
+
+.tags{
+    position: relative;
+    width: 400px;
+    height: 38px;
+    margin: 0 !important;
+    border: 0;
+    background: #eee;
+    -moz-border-radius: 3px 0 0 3px;
+    -webkit-border-radius: 3px 0 0 3px;
+    border-radius: 3px 0 0 3px;
+    border-bottom: 2px solid #000;
+}
+.tags.focused{
+    box-shadow: none !important;
+}
+
+.tags .tag-item{
+    font: bold 15px 'lucida sans', 'trebuchet MS', 'Tahoma' !important;
+    color: #1D1818 !important;
+    padding: 2px 5px !important;
+    background: linear-gradient(to bottom,#F6837E 0,#F55151 47%,#d83c3c 100%) !important;
+}

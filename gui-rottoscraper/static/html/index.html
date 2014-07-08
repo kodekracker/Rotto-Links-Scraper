@@ -8,7 +8,7 @@
             </div>
             <div class="form-wrapper step" id="2">
                 <label for="keywords">Keywords</label>
-                <tags-input ng-model="tags"></tags-input>
+                <tags-input ng-model="keywords"></tags-input>
                 <button class="btn btn-default" ng-click="showNextStep($event)" >Next</button>
             </div>
             <div class="form-wrapper step" id="3">
@@ -30,7 +30,7 @@
             <span class="glyphicon glyphicon-remove remove" ng-show="crawlForm.url.$invalid"></span>
         </div>
         <div class="data" ng-click="showStep(2)" ng-show="crawlForm.keywords.$dirty">
-            <p> Keywords: {{keywords | limitTo:limit}}</p>
+            <p> Keywords: {{keywords}}</p>
             <span class="glyphicon glyphicon-ok ok" ng-show="crawlForm.keywords.$valid"></span>
             <span class="glyphicon glyphicon-remove remove" ng-show="crawlForm.keywords.$invalid"></span>
         </div>
