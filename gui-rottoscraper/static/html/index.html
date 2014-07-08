@@ -1,6 +1,6 @@
 <div class="boxes">
     <div class="steps" ng-show="showForm">
-        <form name="crawlForm" ng-submit="submitForm(crawlForm.$valid)" class="" method="POST"  novalidate>
+        <form name="crawlForm" ng-submit="submitForm(crawlForm.$valid)" class="" method="POST">
             <div class="form-wrapper step selected" id="1">
                 <label for="url">URL</label>
                 <input type="url" ng-model="url" name="url" class="form-control" placeholder="http:// or https://" required>
@@ -8,7 +8,7 @@
             </div>
             <div class="form-wrapper step" id="2">
                 <label for="keywords">Keywords</label>
-                <input type="text" ng-model="keywords" name="keywords" class="form-control"  placeholder="Enter Keywords" required>
+                <tags-input ng-model="tags"></tags-input>
                 <button class="btn btn-default" ng-click="showNextStep($event)" >Next</button>
             </div>
             <div class="form-wrapper step" id="3">
