@@ -3,10 +3,9 @@
 
 from __future__ import absolute_import
 import time
-from rottoscraper import Crawler
+from scraper import Crawler
 
-
-def main():
+def run():
     """Main function of the crawler"""
     start_time = time.time()
     seed_url = raw_input("Enter the seed url: ")
@@ -20,7 +19,3 @@ def main():
     cr.print_results()
     print '\nCrawler Stops........... '
     print "\nElapsed Time: %s sec. " % (time.time() - start_time)
-
-
-if __name__ == "__main__":
-    main()

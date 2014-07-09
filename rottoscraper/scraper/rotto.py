@@ -7,19 +7,12 @@ from __future__ import absolute_import
 
 import time
 import threading
-import rottoscraper.webutil as webutil
+import scraper.webutil as webutil
 from Queue import Queue
-from rottoscraper.aho import AhoCorasick
+from scraper.aho import AhoCorasick
 from robotparser import RobotFileParser
 
 lock = threading.Lock()
-
-class Rotto:
-	""" Data Structure for storing results """
-	def __init__(self):
-		base_url = None
-		rotto_links = []
-		keywords_match = []
 
 class Crawler:
 	"""
@@ -29,7 +22,7 @@ class Crawler:
 		self.host_url = host_url
 		self.keywords = keywords
 		self.visited_links = set()	# a set of visited links
-		self.res = [] # a list of rotto result
+		self.result = [] # a list of rotto result
 		self.rp = None
 		self.queue = Queue()
 		self.aho = AhoCorasick()
@@ -69,6 +62,15 @@ class Crawler:
 		self.rp.set_url(url)
 		self.rp.read()
 
+	def add_to_result(self, base_url, rotto_links, keywords):
+		"""
+			Add the rotto links to results
+		"""
+		res = {}
+		res['base_url'] = base_url
+		res['rotto_links'] = rotto_links
+		res['keywords'] = keywords
+		self.result.append(res)
 
 	def match_keyword(self, base_url, html, rotto_links):
 		"""Match Keyword in a html"""
@@ -76,13 +78,7 @@ class Crawler:
 		matched_keys = self.aho.search_keywords(text)
 		matched_keys = list(set(matched_keys))
 		# Add Rotto Links to Rotto Object
-		r = Rotto()
-		r.base_url = base_url
-		r.rotto_links = rotto_links
-		r.keywords = matched_keys
-
-		self.res.append(r)
-
+		self.add_to_result(base_url,rotto_links,matched_keys)
 
 	def fill_queue(self, seed_url):
 		"""Adds the Url in a seed Url to Queue """
@@ -147,7 +143,7 @@ class Crawler:
 		"""
 			Return the results
 		"""
-		return self.res;
+		return self.result;
 
 	def print_results(self):
 		"""
@@ -159,11 +155,11 @@ class Crawler:
 			print '\t%d) %s'% (cnt1, l)
 			cnt1 += 1
 		print
-		if self.res:
+		if self.result:
 			print '<-----------  Result Founded  ------------>'
 			print
 			cnt1 = 1
-			for r in self.res:
+			for r in self.result:
 				print cnt1, ') Base Url:- ', r.base_url
 				cnt2 = 1
 				if r.rotto_links:

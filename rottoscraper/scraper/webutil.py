@@ -23,7 +23,8 @@ def get_html(url):
         headers = {'User-agent': 'Rotto-Scaper'}
         r = requests.get(url,headers=headers)
         return r.text
-    except
+    except:
+        pass
 
 
 def get_links(html):
