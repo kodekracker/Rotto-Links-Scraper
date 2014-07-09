@@ -11,12 +11,15 @@ app.config(['$routeProvider', function($routeProvider){
         $routeProvider.when('/', {
             templateUrl: '../static/html/index.html',
             controller: 'RottoController'
+        }).when('/result/:job_id', {
+            templateUrl: '../static/html/result.html',
+            controller: 'ResultController'
         }).otherwise({ redirectTo : '/' });
 }]);
 /* End of App Configuration   */
 
 /* App Controllers */
-app.controller('RottoController',['$scope','$location',function($scope){
+app.controller('RottoController',['$scope','$location',function($scope,$location){
     $scope.userDetails = {};
     $scope.isFormComplete = false;
     $scope.showMessage = false;
@@ -44,6 +47,10 @@ app.controller('RottoController',['$scope','$location',function($scope){
         }
     };
 
+    $scope.cancelRequest = function(){
+        $location.url('#/');
+    }
+
     $scope.submitRequest = function(){
         $scope.showMessage = true;
     }
@@ -55,4 +62,8 @@ app.controller('RottoController',['$scope','$location',function($scope){
         }
         return arr;
     };
+}]);
+
+app.controller('ResultController',['$scope','$routeParams',function($scope,$routeParams){
+    $scope.job_id = $routeParams.job_id;
 }]);

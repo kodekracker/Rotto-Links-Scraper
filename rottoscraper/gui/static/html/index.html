@@ -33,7 +33,7 @@
         </form>
     </div>
 </div>
-<div class="user-form-data" ng-show="isFormComplete">
+<div class="user-form-data" ng-show="isFormComplete && !showMessage">
     <table>
         <tr>
             <td><span>Url:</span></td>
@@ -41,16 +41,16 @@
         </tr>
         <tr>
             <td><span>Keywords:</span></td>
-            <td>{{userDetails.keywords}}</td>
+            <td>{{userDetails.keywords.toString()}}</td>
         </tr>
         <tr>
             <td><span>Email-Id:</span></td>
-            <td>{{userDetails.emailId}}</td>
+            <td>{{userDetails.email}}</td>
         </tr>
     </table>
-    <div class="row">
-        <button type="submit" class="btn btn-default" ng-click="">Cancel</button>
-        <button type="submit" class="btn btn-default" ng-click="">Process</button>
+    <div class="button-box">
+        <button type="submit" class="btn btn-default fancy-button cancel" ng-click="cancelRequest()">Cancel</button>
+        <button type="submit" class="btn btn-default fancy-button process" ng-click="submitRequest()">Process</button>
     </div>
 </div>
 <div class="message fancy-box" ng-show="showMessage" >

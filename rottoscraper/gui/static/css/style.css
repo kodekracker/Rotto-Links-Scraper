@@ -133,7 +133,6 @@ footer small{
 }
 
 .user-form-data{
-    font-size: 0.7em;
     padding: 30px 20px;
 }
 
@@ -147,11 +146,49 @@ footer small{
 
 .user-form-data table tr td{
     text-align: left;
+    color: #25D8A6;
+    font-size: 0.7em;
 }
 
 .user-form-data table tr td:first-child{
     text-align: right;
+    padding: 0px 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #ffffff;
 }
+
+.button-box{
+    margin: 20px 0px;
+}
+
+.fancy-button{
+    padding: 0;
+    cursor: pointer;
+    height: 38px;
+    width: 119px;
+    font: bold 15px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+    color: #fff;
+    text-transform: uppercase;
+    background: #d83c3c;
+    border: 0;
+    -moz-border-radius: 3px 3px 3px 3px;
+    -webkit-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+    text-shadow: 0 -1px 0 rgba(0, 0 ,0, .3);
+}
+
+.fancy-button:hover{
+    background: #e54040;
+}
+.cancel{
+    float: left;
+}
+
+.process{
+    float: right;
+}
+
 .ok{
     color: rgb(21, 194, 21);
 }
@@ -218,7 +255,6 @@ footer small{
     -moz-border-radius: 3px 0 0 3px;
     -webkit-border-radius: 3px 0 0 3px;
     border-radius: 3px 0 0 3px;
-    /*border-bottom: 2px solid #000;*/
 }
 
 .form-wrapper input:focus {
