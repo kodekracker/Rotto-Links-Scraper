@@ -11,11 +11,11 @@ A web crawler/scraper to find the broken links in the targeted seed url based on
 
 To run the worker :
 
-    $ python worker.py
+    $ python rottoscraper/worker.py
 
 To run Flask frontend and api :
 
-    $ python run.py
+    $ python rottoscraper/run.py
 
 ##Developer
 1. [Akshay Pratap Singh](https://www.facebook.com/AKSHAYPRATAP007)
