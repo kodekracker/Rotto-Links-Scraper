@@ -8,6 +8,8 @@ import nltk
 from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
+from requests.exceptions import Timeout
+from requests.exceptions import RequestException
 
 
 def get_plain_text(html):
@@ -17,14 +19,19 @@ def get_plain_text(html):
     return text
 
 
-def get_html(url):
+def get_html(url,max_retry=5):
     """Return the html of a url page"""
-    try:
-        headers = {'User-agent': 'Rotto-Scaper'}
-        r = requests.get(url,headers=headers)
-        return r.text
-    except:
-        pass
+    counter = 1
+    while counter <= max_retry:
+        try:
+            headers = {'User-agent': 'Rotto-Scaper'}
+            r = requests.get(url,headers=headers)
+            return r.text
+        except Timeout:
+            counter += 1
+            continue
+        except RequestException:
+            return 'None'
 
 
 def get_links(html):

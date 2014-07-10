@@ -148,6 +148,7 @@ class Crawler:
 		"""
 			Return the results
 		"""
+		self.response['total_visited_links'] = len(self.visited_links)
 		self.response['result'] = self.result
 		return self.response;
 

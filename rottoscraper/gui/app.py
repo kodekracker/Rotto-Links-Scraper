@@ -97,6 +97,7 @@ def get_results(job_id):
                 res = job.result
                 response['url'] = res['url']
                 response['keywords'] = res['keywords']
+                response['total_visited_links'] = res['total_visited_links']
                 response['result'] = res['result']
             res_code = 200
         return  make_response(jsonify(response),res_code)

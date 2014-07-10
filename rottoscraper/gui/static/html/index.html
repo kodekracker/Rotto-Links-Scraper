@@ -43,9 +43,12 @@
             <tr>
                 <td><span class="focus">Keywords:</span></td>
                 <td>
-                    <div class="keyword" ng-repeat="keyword in userDetails.keywords">
+                    <div class="keyword" ng-show="userDetails.keywords.length!=0" ng-repeat="keyword in userDetails.keywords">
                         <span class="glyphicon glyphicon-tag"></span>
                         <span>{{keyword}}</span>
+                    </div>
+                    <div ng-show="userDetails.keywords.length==0">
+                            No Keyword
                     </div>
                 </td>
             </tr>
