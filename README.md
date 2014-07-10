@@ -10,10 +10,12 @@ A web crawler/scraper to find the broken links in the targeted seed url based on
 ##Commands
 
 To run the worker :
-> python worker.py
+
+    $ python worker.py
 
 To run Flask frontend and api :
-> python run.py
+
+    $ python run.py
 
 ##Developer
 1. [Akshay Pratap Singh](https://www.facebook.com/AKSHAYPRATAP007)
