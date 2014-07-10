@@ -1,3 +1,69 @@
 <div class="result-box">
-    <p>Job Id: {{job_id}}</p>
+    <div class="msg" ng-show="isError">
+        <p>{{ errorMessage }}</p>
+    </div>
+    <div class="result"ng-show="!isError">
+        <div class="result-head fancy-box">
+            <table>
+                <tr>
+                    <td><span class="focus">Url : </span></td>
+                    <td><a href="{{jobDetails.url}}">{{ jobDetails.url }}</a></td>
+                </tr>
+                <tr>
+                    <td><span class="focus">Keywords:</span></td>
+                    <td>
+                        <div class="keyword" ng-repeat="keyword in jobDetails.keywords">
+                            <span class="glyphicon glyphicon-tag"></span>
+                            <span>{{keyword}}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="focus">Job Id: </span></td>
+                    <td>{{ jobDetails.job_id }}</td>
+                </tr>
+                <tr>
+                    <td><span class="focus">Job Status:</span></td>
+                    <td>{{ jobDetails.status.toUpperCase() }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="result-content fancy-box" >
+            <div class="msg" ng-show="jobDetails.status!='finished'">
+                <p>No Rotto Links Page Found</p>
+            </div>
+            <div class="result-content-row" ng-show="jobDetails.status=='finished'" ng-repeat="res in jobDetails.result">
+                <table class="table">
+                    <tr>
+                        <td>{{$index+1}}&nbsp)</td>
+                        <td><span class="focus">Page Url:</span></td>
+                        <td><a href="{{res.base_url}}" target="_blank">{{res.base_url}}</a></td>
+                    </tr>
+                    <tr colspan="{{res.rotto_links.length}}">
+                        <td></td>
+                        <td><span class="focus">Rotto Url:</span></td>
+                        <td>
+                            <div class="rotto-row" ng-repeat="url in res.rotto_links">{{$index+1}})&nbsp<a href="{{url}}" target="_blank">{{url}}</a></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><span class="focus">Keywords Matched:</span></td>
+                        <td>
+                            <div class="keyword" ng-show="res.keywords.length!=0" ng-repeat="keyword in res.keywords">
+                                <span class="glyphicon glyphicon-tag"></span>
+                                <span>{{keyword}}</span>
+                            </div>
+                            <div ng-show="res.keywords.length==0">
+                                No Keyword Matched
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="result-footer">
+
+        </div>
+    </div>
 </div>

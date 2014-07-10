@@ -1,6 +1,9 @@
 flask
+flask-cors
 argparse
 beautifulsoup4
 requests
 nltk
 sqlalchemy
+rq
+reppy

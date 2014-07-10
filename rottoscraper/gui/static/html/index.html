@@ -34,20 +34,27 @@
     </div>
 </div>
 <div class="user-form-data" ng-show="isFormComplete && !showMessage">
-    <table>
-        <tr>
-            <td><span>Url:</span></td>
-            <td>{{userDetails.url}}</td>
-        </tr>
-        <tr>
-            <td><span>Keywords:</span></td>
-            <td>{{userDetails.keywords.toString()}}</td>
-        </tr>
-        <tr>
-            <td><span>Email-Id:</span></td>
-            <td>{{userDetails.email}}</td>
-        </tr>
-    </table>
+    <div class="user-form-data-head fancy-box">
+       <table>
+            <tr>
+                <td><span class="focus">Url:</span></td>
+                <td>{{userDetails.url}}</td>
+            </tr>
+            <tr>
+                <td><span class="focus">Keywords:</span></td>
+                <td>
+                    <div class="keyword" ng-repeat="keyword in userDetails.keywords">
+                        <span class="glyphicon glyphicon-tag"></span>
+                        <span>{{keyword}}</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="focus">Email-Id:</span></td>
+                <td>{{userDetails.email}}</td>
+            </tr>
+        </table>
+    </div>
     <div class="button-box">
         <button type="submit" class="btn btn-default fancy-button cancel" ng-click="cancelRequest()">Cancel</button>
         <button type="submit" class="btn btn-default fancy-button process" ng-click="submitRequest()">Process</button>
@@ -56,6 +63,7 @@
 <div class="message fancy-box" ng-show="showMessage" >
     <h3>Your Request is in Queue</h3>
     <p>We will get back to you soon with some solid result. Checkout your email-Id after few moments</p>
+    <p>Job Url : <a href="{{job_url}}"><span class="job-url">{{job_url}}</span></a></p>
 </div>
 
 

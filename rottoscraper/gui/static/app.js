@@ -5,26 +5,26 @@ var app = angular.module('RottoApp',[
     ]);
 
 /* App Configuration */
-
-app.config(['$routeProvider', function($routeProvider){
+app.config(function($routeProvider){
         // provide routes
         $routeProvider.when('/', {
             templateUrl: '../static/html/index.html',
             controller: 'RottoController'
-        }).when('/result/:job_id', {
+        }).when('/result/:jobId', {
             templateUrl: '../static/html/result.html',
             controller: 'ResultController'
         }).otherwise({ redirectTo : '/' });
-}]);
+});
 /* End of App Configuration   */
 
 /* App Controllers */
-app.controller('RottoController',['$scope','$location',function($scope,$location){
+app.controller('RottoController',function($scope,$location,$http){
     $scope.userDetails = {};
     $scope.isFormComplete = false;
     $scope.showMessage = false;
     $scope.currentStepId = 1;
-
+    $scope.jobDetails = 'null';
+    $scope.job_url = 'null';
     $scope.showStep = function(id){
         if(id==2)
             $scope.userDetails.url = $scope.url || 'None';
@@ -52,7 +52,19 @@ app.controller('RottoController',['$scope','$location',function($scope,$location
     }
 
     $scope.submitRequest = function(){
-        $scope.showMessage = true;
+        var url = 'http://localhost:5000/api/v1.0/crawl/';
+        $http.post(url,$scope.userDetails).success(function(data,status){
+            $scope.jobDetails = data;
+            $scope.job_url = makeJobUrl($scope.jobDetails.job_id);
+            console.log("success");
+            console.log($scope.jobDetails);
+             $scope.showMessage = true;
+        }).error(function(data,status){
+            console.log("failure");
+            $scope.userDetails = data || "Request failed";
+            console.log($scope.jobDetails);
+            $scope.showMessage = true;
+        });
     }
 
     function getKeys(data){
@@ -62,8 +74,31 @@ app.controller('RottoController',['$scope','$location',function($scope,$location
         }
         return arr;
     };
-}]);
 
-app.controller('ResultController',['$scope','$routeParams',function($scope,$routeParams){
-    $scope.job_id = $routeParams.job_id;
-}]);
+    function makeJobUrl(job_key){
+        var url = 'http://localhost:5000/#/result/'+job_key;
+        return url;
+    };
+});
+
+
+app.controller('ResultController',function($scope,$location,$routeParams,$http){
+    $scope.jobId = $routeParams.jobId;
+    $scope.isError = false;
+    $scope.jobDetails = {};
+    var url = 'http://localhost:5000/api/v1.0/crawl/'+$scope.jobId;
+
+
+    $http.get(url).success(function(data, status, headers, config){
+        console.log(data);
+        if(status=='202'){
+            $scope.isError = true;
+            $scope.errorMessage = data.error;
+        }else{
+            $scope.jobDetails = data;
+        }
+    }).error(function(data, status, headers, config){
+        $scope.isError = true;
+        $scope.errorMessage = 'Error in Request, Please Try Again.';
+    });
+});
