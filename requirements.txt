@@ -1,9 +1,11 @@
 flask
 flask-cors
 argparse
+grequests
 beautifulsoup4
-requests
 nltk
 sqlalchemy
+redis
 rq
 reppy
+pybloomfilter

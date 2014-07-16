@@ -6,6 +6,9 @@ from collections import deque
 
 
 class Node:
+    """
+        Represents a single node in keyword tree
+    """
     def __init__(self, ch=None):
         self.char = ch
         self.transitions = []
@@ -14,15 +17,26 @@ class Node:
 
 
 class AhoCorasick:
-
+    """
+        Returns a list of keywords matched in a given text
+    """
     def __init__(self):
+        """
+            Initialize class attributes
+        """
         self.terms = []
         self.root = None
 
     def add_keyword(self, term):
+        """
+            Add keywords
+        """
         self.terms.append(term)
 
     def make_keyword_tree(self):
+        """
+            Make a keyword tree using keywords
+        """
         # Create the root node and queue for failure paths
         root = Node('R')
         root.fail = root
@@ -60,6 +74,10 @@ class AhoCorasick:
         self.root = root
 
     def search_keywords(self, text=None):
+        """
+            Returns a  list of matched keywords in given text using keyword
+            tree
+        """
         hits = []
         currentNode = self.root
 
