@@ -5,11 +5,13 @@
 
 from __future__ import absolute_import, nested_scopes
 
+import sys
 import time
 import reppy
 import scraper.utils as utils
 from scraper.aho import AhoCorasick
 from reppy.cache import RobotsCache
+from scraper.error import ContentTypeError
 
 class Link(object):
     """
@@ -61,18 +63,17 @@ class Page(Link):
         self.internal_links = []
         self.crawl_pages = []
         self.rotto_links = []
+        self.content_type = None
 
     def get_content(self):
         """
             Returns the html content of a page
         """
         if not self.content:
-            try:
-                res = utils.make_request(self.url)
-                self.status_code = res.status_code
-                self.content = res.text
-            except Exception:
-                pass
+            res = utils.make_request(self.url)
+            self.status_code = res.status_code
+            self.content_type = utils.get_content_type(res.headers['content-type'])
+            self.content = res.text
         return self.content
 
     def get_keywords_matched(self, aho):
@@ -110,36 +111,70 @@ class Page(Link):
             self.internal_links.append(Link(url))
         return self.internal_links
 
-    def get_status_codes_of_links(self):
+    def get_status_codes_of_links(self, website):
         """
             Returns status_code of all links
         """
+        # add this page in visited links
+        website.visited_links[self.url] = {'status_code':self.status_code}
+
+        urls = []
         # process external links
-        urls = (u.url for u in self.external_links)
-
-        # get the dict of (url,status_code) of each external links
-        res = utils.make_grequest(urls)
-
-        # set status code of each external links
         for link in self.external_links:
-            link.set_status_code(res[link.url].get('status_code', None))
+            if link.url not in website.visited_links:
+                urls.append(link.url)
 
+        if urls:
+            # get the dict of (url,status_code) of each external links
+            res = utils.make_grequest(urls)
+
+            # set status code of each external links
+            for link in self.external_links:
+                if link.url in res:
+                    status_code = res[link.url].get('status_code', None)
+                    website.visited_links[link.url] = { 'status_code' : status_code }
+                    link.set_status_code(status_code)
+                else:
+                    status_code = website.visited_links[link.url].get('status_code', None)
+                    link.set_status_code(status_code)
+
+        print '--> External Links Processed :: ', self.url
+
+        urls = []
         # process internal links
-        urls = (u.url for u in self.internal_links)
-
-        # get the dict of (url,status_code,content) of each internal links
-        res = utils.make_grequest(urls, content=True)
-
         for link in self.internal_links:
-            link.set_status_code(res[link.url].get('status_code', None))
+            if link.url not in website.visited_links:
+                urls.append(link.url)
 
-            if is_status_ok(link.get_status_code()):
-                page = Page(self.host_url, link.url)
-                page.content = res[link.url].get('content', None)
-                crawl_pages.append(page)
-            else:
-            	print 'Broken Url Found:: ', link.url
-                self.rotto_links.append(link.url)
+        if urls:
+            # get the dict of (url,status_code,content) of each internal links
+            res = utils.make_grequest(urls, content=True)
+
+            # set status code of each external links
+            for link in self.internal_links:
+
+                if link.url in res:
+                    status_code = res[link.url].get('status_code', None)
+                    website.visited_links[link.url] = { 'status_code' : status_code }
+                    link.set_status_code(status_code)
+
+                    # check status is ok or not
+                    if utils.is_status_ok(status_code):
+                        cType = utils.get_content_type(res[link.url].get('content_type', None))
+                        if cType == 'text/html':
+                            page = Page(self.host_url, link.url)
+                            page.content = res[link.url].get('content', None)
+                            self.crawl_pages.append(page)
+                        else:
+                            print '\t Content-type Mismatched :: ', link.url
+                    else:
+                        print '\t Broken Url Found:: ', link.url
+                        self.rotto_links.append(link.url)
+                else:
+                    status_code = website.visited_links[link.url].get('status_code', None)
+                    link.set_status_code(status_code)
+
+            print '--> Internal Links Processed :: ', self.url
 
 
 class Website:
@@ -156,7 +191,8 @@ class Website:
 	def __init__(self,host_url=None,keywords=[]):
 		self.host_url = host_url
 		self.keywords = keywords
-		self.visited_links = set()	# a set of visited links
+        # a dict of visited links and their status code
+		self.visited_links = dict()
 		self.robots = RobotsCache()
 		self.rp = None
 		self.aho = AhoCorasick()

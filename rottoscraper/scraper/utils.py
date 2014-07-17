@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, nested_scopes
 
+import sys
 import requests
 import grequests
 import nltk
@@ -13,38 +14,33 @@ from requests.exceptions import Timeout
 from requests.exceptions import RequestException
 from scraper.error import ContentTypeError
 
-def make_request(url,timeout=1.0,num_of_retry=3,allow_redirects=True):
+def make_request(url,timeout=5.0,num_of_retry=3,allow_redirects=True):
     """
         Return response object of url if content-type:text/html
     """
-    try:
-        while num_of_retry > 0:
+    while num_of_retry > 0:
+        try:
             res = requests.get(url,timeout=timeout, allow_redirects=allow_redirects)
+            print '--> Made Request %s :: %d ' % ( url, res.status_code)
             if res.status_code == requests.codes.ok:
-                cType = clean(res.headers['Content-Type'].split(';')[0])
-                if cType == 'text/html':
-                    return res
-                else:
-                    raise ContentTypeError
+                return res
             else:
                 res.raise_for_status()
-
-        # num of retries completed
-        raise RequestException
-    except ContentTypeError:
-        print 'ContentTypeError'
-    except Timeout:
-        num_of_retry -= 1
-        print 'Retrying :: (Url= %s,Retries Left=%d)' % (url, num_of_retry)
-    except RequestException as e:
-        print 'Request Exception ', str(e)
+            # num of retries completed
+            raise RequestException
+        except Timeout:
+            num_of_retry -= 1
+            print '-->  Retrying :: (Url= %s,Retries Left=%d)' % (url, num_of_retry)
+            continue
+        except RequestException as e:
+            print '-->  Request Exception ', str(e)
 
 def exception_handler(request,  exception):
-    print 'Request Failed :: ',str(exception)
+    print '-->  Url %s request Failed :: %s' % (request.url, exception)
 
 def make_grequest(urls,content=False,size=5):
     """
-        Return the dict of (url,status_code Or content) of each list of url
+        Return the dict of (url,status_code, content_type Or content) of each list of url
         in urls
     """
     try:
@@ -57,13 +53,23 @@ def make_grequest(urls,content=False,size=5):
 
         res = grequests.map(reqs,stream=False,size=size)
         for url, r in zip(urls, res):
+            print '--> Made Request %s :: %d ' % ( url, r.status_code)
             if content:
-                ret[url] = { 'status_code' : r.status_code , 'content': r.text}
+                ret[url] = {
+                    'status_code' : r.status_code ,
+                    'content_type' : r.headers['content-type'],
+                    'content': r.text
+                }
             else:
-                ret[url] = { 'status_code' : r.status_code}
-        return ret
+                ret[url] = {
+                    'status_code' : r.status_code ,
+                    'content_type' : r.headers['content-type']
+                }
+        if ret:
+            return ret
+        raise Exception
     except Exception as e:
-        print 'Error in grequests :: ', str(e)
+        print '-->  Error in grequests :: ', str(e)
 
 def is_status_ok(status_code):
     """
@@ -95,6 +101,7 @@ def get_external_links(host_url, html):
         url = get_absolute_url(host_url, l['href'])
         if not url.startswith(host_url):
             external_links.append(url)
+    external_links = list(set(external_links))
     return external_links
 
 def get_internal_links(host_url, html):
@@ -110,6 +117,7 @@ def get_internal_links(host_url, html):
         url = get_absolute_url(host_url, l['href'])
         if url.startswith(host_url):
             internal_links.append(url)
+    internal_links = list(set(internal_links))
     return internal_links
 
 def get_absolute_url(base_url,relative_url):
@@ -132,3 +140,9 @@ def clean(str):
         and make it lower case
     """
     return str.strip().lower()
+
+def get_content_type(ctype):
+    """
+        Returns the content type
+    """
+    return clean(ctype.split(';')[0])
