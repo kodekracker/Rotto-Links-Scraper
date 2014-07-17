@@ -5,13 +5,12 @@
 
 from __future__ import absolute_import, nested_scopes
 
-import sys
+import re
 import time
 import reppy
 import scraper.utils as utils
 from scraper.aho import AhoCorasick
 from reppy.cache import RobotsCache
-from scraper.error import ContentTypeError
 
 class Link(object):
     """
@@ -98,6 +97,7 @@ class Page(Link):
         links = utils.get_external_links(self.host_url, self.content)
         for url in links:
             self.external_links.append(Link(url))
+        self.external_links = self.exclude_parser(self.external_links)
         return self.external_links
 
     def get_internal_links(self):
@@ -109,7 +109,18 @@ class Page(Link):
         links = utils.get_internal_links(self.host_url, self.content)
         for url in links:
             self.internal_links.append(Link(url))
+        self.internal_links = self.exclude_parser(self.internal_links)
         return self.internal_links
+
+    def exclude_parser(self,links):
+        """
+        """
+        reg_ex = '.*(jpg|jpeg|pdf|svg|png|gif|woff|mp4|ogg|avi|mp3|webp|tiff|css|js)$'
+        def crawlable(url):
+            if bool(re.match(reg_ex, url)):
+                return False
+            return True
+        return [link for link in links if crawlable(link.url)]
 
     def get_status_codes_of_links(self, website):
         """
