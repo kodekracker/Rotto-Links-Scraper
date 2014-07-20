@@ -52,13 +52,11 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
-#Crawl Results
-results/
+# Crawl logs
 *.log
 
-#complied files
+# Complied files
 *.pyc
 
-
-#IPython Notebook files
+# IPython Notebook files
 *.ipynb

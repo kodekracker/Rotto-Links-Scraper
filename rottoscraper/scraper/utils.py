@@ -4,15 +4,18 @@
 from __future__ import absolute_import, nested_scopes
 
 import sys
-import requests
-import grequests
 import nltk
 from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
+
+import requests
+import grequests
 from requests.exceptions import Timeout
 from requests.exceptions import RequestException
+
 from scraper.error import ContentTypeError
+
 
 def make_request(url,timeout=5.0,num_of_retry=3,allow_redirects=True):
     """

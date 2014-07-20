@@ -1,16 +1,17 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# 'Rotto' refer to rotten|broken links
-
 from __future__ import absolute_import, nested_scopes
 
 import re
 import time
+
 import reppy
+from reppy.cache import RobotsCache
+
 import scraper.utils as utils
 from scraper.aho import AhoCorasick
-from reppy.cache import RobotsCache
+
 
 class Link(object):
     """
@@ -202,13 +203,14 @@ class Website:
 	def __init__(self,host_url=None,keywords=[]):
 		self.host_url = host_url
 		self.keywords = keywords
-        # a dict of visited links and their status code
-		self.visited_links = dict()
+        self.visited_links = dict()
 		self.robots = RobotsCache()
 		self.rp = None
 		self.aho = AhoCorasick()
 		self.result = []
 		self.response = {}
+        self.no_of_pages_queued = 0
+        self.no_of_pages_crawled = 0
 
 	def preInit(self):
 		"""
@@ -240,9 +242,18 @@ class Website:
 		res['keywords'] = keywords
 		self.result.append(res)
 
+    def is_website_crawled_completely():
+        """
+        Tells whether website crawled completely or not
+        """
+        if self.no_of_pages_queued == self.no_of_pages_crawled:
+            return True
+        else
+            return False
+
 	def get_results(self):
 		"""
-			Return the results
+		Return the results
 		"""
 		self.response['url'] = self.host_url
 		self.response['keywords'] = self.keywords
