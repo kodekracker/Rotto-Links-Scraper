@@ -7,9 +7,11 @@ from collections import deque
 
 
 class Node:
+
     """
         Represents a single node in keyword tree
     """
+
     def __init__(self, ch=None):
         self.char = ch
         self.transitions = []
@@ -18,9 +20,11 @@ class Node:
 
 
 class AhoCorasick:
+
     """
         Returns a list of keywords matched in a given text
     """
+
     def __init__(self):
         """
             Initialize class attributes
@@ -70,7 +74,8 @@ class AhoCorasick:
                 fail_state_node = current_node.fail
                 while not any(x for x in fail_state_node.transitions if node.char == x.char) and fail_state_node is not root:
                     fail_state_node = fail_state_node.fail
-                node.fail = next((x for x in fail_state_node.transitions if node.char == x.char and x is not node), root)
+                node.fail = next(
+                    (x for x in fail_state_node.transitions if node.char == x.char and x is not node), root)
         # tree has been built! return it
         self.root = root
 

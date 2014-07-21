@@ -5,6 +5,7 @@ from __future__ import absolute_import, nested_scopes
 
 import sys
 import nltk
+import logging
 from bs4 import BeautifulSoup
 from urlparse import urljoin
 from os.path import splitext, basename
@@ -14,17 +15,20 @@ import grequests
 from requests.exceptions import Timeout
 from requests.exceptions import RequestException
 
-from scraper.error import ContentTypeError
+
+# Set logging object
+logger = logging.getLogger('scraper_logger')
 
 
-def make_request(url,timeout=5.0,num_of_retry=3,allow_redirects=True):
+def make_request(url, timeout=5.0, num_of_retry=3, allow_redirects=True):
     """
         Return response object of url if content-type:text/html
     """
     while num_of_retry > 0:
         try:
-            res = requests.get(url,timeout=timeout, allow_redirects=allow_redirects)
-            print '--> Made Request %s :: %d ' % ( url, res.status_code)
+            res = requests.get(
+                url, timeout=timeout, allow_redirects=allow_redirects)
+            logger.debug('Made Request %s :: %d ', url, res.status_code)
             if res.status_code == requests.codes.ok:
                 return res
             else:
@@ -33,15 +37,14 @@ def make_request(url,timeout=5.0,num_of_retry=3,allow_redirects=True):
             raise RequestException
         except Timeout:
             num_of_retry -= 1
-            print '-->  Retrying :: (Url= %s,Retries Left=%d)' % (url, num_of_retry)
+            logger.debug(
+                'Retrying :: (Url= %s, Retries Left=%d)', url, num_of_retry)
             continue
         except RequestException as e:
-            print '-->  Request Exception ', str(e)
+            logger.exception('Error in make_request')
 
-def exception_handler(request,  exception):
-    print '-->  Url %s request Failed :: %s' % (request.url, exception)
 
-def make_grequest(urls,content=False,size=5):
+def make_grequest(urls, content=False, size=5):
     """
         Return the dict of (url,status_code, content_type Or content) of each list of url
         in urls
@@ -54,25 +57,25 @@ def make_grequest(urls,content=False,size=5):
         else:
             reqs = (grequests.head(url) for url in urls)
 
-        res = grequests.map(reqs,stream=False,size=size)
+        res = grequests.map(reqs, stream=False, size=size)
         for url, r in zip(urls, res):
-            print '--> Made Request %s :: %d ' % ( url, r.status_code)
+            logger.debug('Made Request %s :: %d ', url, r.status_code)
             if content:
                 ret[url] = {
-                    'status_code' : r.status_code ,
-                    'content_type' : r.headers['content-type'],
+                    'status_code': r.status_code,
                     'content': r.text
                 }
             else:
                 ret[url] = {
-                    'status_code' : r.status_code ,
-                    'content_type' : r.headers['content-type']
+                    'status_code': r.status_code
                 }
         if ret:
             return ret
+
         raise Exception
     except Exception as e:
-        print '-->  Error in grequests :: ', str(e)
+        logger.exception('Error in make_grequest')
+
 
 def is_status_ok(status_code):
     """
@@ -83,6 +86,7 @@ def is_status_ok(status_code):
     else:
         return False
 
+
 def get_plain_text(html):
     """
         Return the plain text in utf-8 encoding from a html
@@ -90,6 +94,7 @@ def get_plain_text(html):
     raw_text = nltk.clean_html(html)
     text = u' '.join(raw_text.split()).encode('utf-8').lower()
     return text
+
 
 def get_external_links(host_url, html):
     """
@@ -107,6 +112,7 @@ def get_external_links(host_url, html):
     external_links = list(set(external_links))
     return external_links
 
+
 def get_internal_links(host_url, html):
     """
         Return the internal links
@@ -123,7 +129,8 @@ def get_internal_links(host_url, html):
     internal_links = list(set(internal_links))
     return internal_links
 
-def get_absolute_url(base_url,relative_url):
+
+def get_absolute_url(base_url, relative_url):
     """
         Return the absolute url from relative url
     """
@@ -137,15 +144,10 @@ def get_absolute_url(base_url,relative_url):
     absolute_url = urljoin(base_url, relative_url)
     return absolute_url
 
+
 def clean(str):
     """
         Clean the string by removing leading and trailing whitespaces
         and make it lower case
     """
     return str.strip().lower()
-
-def get_content_type(ctype):
-    """
-        Returns the content type
-    """
-    return clean(ctype.split(';')[0])
