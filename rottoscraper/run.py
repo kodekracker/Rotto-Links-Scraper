@@ -7,6 +7,7 @@ import sys
 import logging
 import logging.config
 
+from gui import app
 from scraper.task import start_dispatcher
 
 def setup_logging(default_path='logging-conf.json',default_level=logging.INFO,env_key='LOG_CFG'):
@@ -19,8 +20,7 @@ def setup_logging(default_path='logging-conf.json',default_level=logging.INFO,en
         path = value
     if os.path.exists(path):
         with open(path, 'rt') as f:
-            config = json.load(f.read())
-        print config
+            config = json.loads(f.read())
         logging.config.dictConfig(config)
     else:
         logging.basicConfig(level=default_level)
@@ -41,4 +41,4 @@ if __name__ == '__main__':
         elif(sys.argv[1]=='scraper'):
             url = 'http://akshayon.net'
             keywords = ['akshay','sunny','python','pelican','redis','twitter']
-            # start_dispatcher(url, keywords)
+            start_dispatcher(url, keywords)

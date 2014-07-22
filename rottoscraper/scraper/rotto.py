@@ -13,10 +13,6 @@ from reppy.cache import RobotsCache
 import scraper.utils as utils
 from scraper.aho import AhoCorasick
 
-# Set logging object
-logger = logging.getLogger('scraper_logger')
-
-
 class Link(object):
 
     """
@@ -29,6 +25,8 @@ class Link(object):
     def __init__(self, url=None, status_code=None):
         self.url = url
         self.status_code = status_code
+        # Set logging object
+        self.logger = logging.getLogger('scraper')
 
     def set_status_code(self, status_code):
         self.status_code = status_code
@@ -71,6 +69,8 @@ class Page(Link):
         self.internal_links = []
         self.crawl_pages = []
         self.rotto_links = []
+        # Set logging object
+        self.logger = logging.getLogger('scraper')
 
     def get_content(self):
         """
@@ -107,16 +107,24 @@ class Page(Link):
         self.external_links = self.exclude_parser(self.external_links)
         return self.external_links
 
-    def get_internal_links(self):
+    def get_internal_links(self, website):
         """
             Returns a list of internal links in a page
         """
         if not self.content:
             self.get_content()
         links = utils.get_internal_links(self.host_url, self.content)
+
+        # exclude all url's not satisfied robots.txt rules
         for url in links:
-            self.internal_links.append(Link(url))
+            if website.rules.allowed(url):
+                self.internal_links.append(Link(url))
+            else:
+                self.logger.info('Disallowed :: ',url)
+
+        # exclude all non-html files url's
         self.internal_links = self.exclude_parser(self.internal_links)
+
         return self.internal_links
 
     def exclude_parser(self, links):
@@ -159,7 +167,7 @@ class Page(Link):
                         link.url].get('status_code', None)
                     link.set_status_code(status_code)
 
-        logger.info('External Links Processed :: %s', self.url)
+        self.logger.info('External Links Processed :: %s', self.url)
 
         urls = []
         # process internal links
@@ -193,7 +201,7 @@ class Page(Link):
                         link.url].get('status_code', None)
                     link.set_status_code(status_code)
 
-            logger.info('Internal Links Processed :: %s', self.url)
+            self.logger.info('Internal Links Processed :: %s', self.url)
 
 
 class Website:
@@ -209,12 +217,11 @@ class Website:
     :param result: List of broken pages
     """
 
-    def __init__(self, host_url=None, keywords=[]):
-        self.host_url = host_url
+    def __init__(self, url=None, keywords=[]):
+        self.url = url
         self.keywords = keywords
         self.visited_links = dict()
         self.robots = RobotsCache()
-        self.rp = None
         self.aho = AhoCorasick()
         self.result = []
         self.response = {}
@@ -238,8 +245,7 @@ class Website:
 
     def _set_robot_rule(self):
         """Set the robots.txt rules"""
-        url = utils.get_absolute_url(self.host_url, '/robots.txt')
-        self.rp = self.robots.fetch(url)
+        self.rules = self.robots.fetch(self.url)
 
     def add_to_result(self, base_url, rotto_links, keywords):
         """
@@ -264,7 +270,7 @@ class Website:
         """
         Return the results
         """
-        self.response['url'] = self.host_url
+        self.response['url'] = self.url
         self.response['keywords'] = self.keywords
         self.response['total_visited_links'] = len(self.visited_links)
         self.response['result'] = self.result

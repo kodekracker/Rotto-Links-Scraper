@@ -15,7 +15,7 @@ from scraper.rotto import Website, Page
 q = Queue('high', connection=redis_conn)
 
 # Set logging object
-logger = logging.getLogger('scraper_logger')
+logger = logging.getLogger('scraper')
 
 
 def crawl_page(website, page):
@@ -39,7 +39,7 @@ def crawl_page(website, page):
         logger.info('Found External Links :: %d', len(page.external_links))
 
         # get internal links
-        page.get_internal_links()
+        page.get_internal_links(website)
         logger.info('Found Internal Links :: %d', len(page.internal_links))
 
         # get status code of all links
@@ -88,9 +88,9 @@ def start_dispatcher(url, keywords):
         logger.debug('Dispatcher Start :: %s', url)
         website = Website(url, keywords)
         website.preInit()
-        page = Page(website.host_url, website.host_url)
+        page = Page(website.url, website.url)
         website.no_of_pages_queued += 1
         job = q.enqueue(crawl_page, website, page)
         logger.debug('Job Added in Queue :: %s', url)
     except Exception as e:
-        logger.debug('Error occurred in dispatcher')
+        logger.exception('Error occurred in dispatcher')

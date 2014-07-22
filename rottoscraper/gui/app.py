@@ -22,10 +22,9 @@ from rq import Queue, get_current_job
 from rq.job import Job
 from redis import Redis
 from worker import redis_conn
-from scraper import Crawler
 
 
-class RottoView(MethodView):
+class AppView(MethodView):
     def get(self):
         return render_template('main.html')
 
@@ -36,14 +35,13 @@ app.config.from_object(settings)
 # required for gunicorn
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
-app.add_url_rule('/', view_func=RottoView.as_view('rotto_view'),
+app.add_url_rule('/', view_func=AppView.as_view('app_view'),
     methods=['GET',])
 
 # task to do by worker
 def crawl(payload):
-    cr = Crawler(payload['url'],payload['keywords'])
-    cr.start()
-    results = cr.get_results()
+    # add job in queue
+    results = {}
     return results
 
 def is_contain(payload,*args):
@@ -121,6 +119,3 @@ def bad_request(error):
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
-
-if __name__ == '__main__':
-    app.run()

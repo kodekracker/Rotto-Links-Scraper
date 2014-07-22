@@ -17,7 +17,7 @@ from requests.exceptions import RequestException
 
 
 # Set logging object
-logger = logging.getLogger('scraper_logger')
+logger = logging.getLogger('scraper')
 
 
 def make_request(url, timeout=5.0, num_of_retry=3, allow_redirects=True):
