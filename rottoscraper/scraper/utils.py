@@ -15,9 +15,7 @@ import grequests
 from requests.exceptions import Timeout
 from requests.exceptions import RequestException
 
-
-# Set logging object
-logger = logging.getLogger('scraper')
+from logger import log
 
 
 def make_request(url, timeout=5.0, num_of_retry=3, allow_redirects=True):
@@ -26,9 +24,8 @@ def make_request(url, timeout=5.0, num_of_retry=3, allow_redirects=True):
     """
     while num_of_retry > 0:
         try:
-            res = requests.get(
-                url, timeout=timeout, allow_redirects=allow_redirects)
-            logger.debug('Made Request %s :: %d ', url, res.status_code)
+            res = requests.get(url, timeout=timeout, allow_redirects=allow_redirects)
+            log.info('Made Request %s :: %d ' % (url, res.status_code))
             if res.status_code == requests.codes.ok:
                 return res
             else:
@@ -37,11 +34,10 @@ def make_request(url, timeout=5.0, num_of_retry=3, allow_redirects=True):
             raise RequestException
         except Timeout:
             num_of_retry -= 1
-            logger.debug(
-                'Retrying :: (Url= %s, Retries Left=%d)', url, num_of_retry)
+            log.info('Retrying :: (Url= %s, Retries Left=%d)' % (url, num_of_retry))
             continue
         except RequestException as e:
-            logger.exception('Error in make_request')
+            log.exception('Error in make_request')
 
 
 def make_grequest(urls, content=False, size=5):
@@ -59,7 +55,7 @@ def make_grequest(urls, content=False, size=5):
 
         res = grequests.map(reqs, stream=False, size=size)
         for url, r in zip(urls, res):
-            logger.debug('Made Request %s :: %d ', url, r.status_code)
+            log.info('Made Request %s :: %d ' % (url, r.status_code))
             if content:
                 ret[url] = {
                     'status_code': r.status_code,
@@ -74,7 +70,7 @@ def make_grequest(urls, content=False, size=5):
 
         raise Exception
     except Exception as e:
-        logger.exception('Error in make_grequest')
+        log.exception('Error in make_grequest')
 
 
 def is_status_ok(status_code):

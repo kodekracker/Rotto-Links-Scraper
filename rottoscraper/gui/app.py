@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import absolute_import, nested_scopes
+
 import os
-from gui import settings
+
 from flask import Flask
 from flask import request
 from flask import session
@@ -21,8 +22,9 @@ from werkzeug.contrib.fixers import ProxyFix
 from rq import Queue, get_current_job
 from rq.job import Job
 from redis import Redis
-from worker import redis_conn
 
+import settings
+from worker import redis_conn
 
 class AppView(MethodView):
     def get(self):

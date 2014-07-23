@@ -8,3 +8,4 @@ sqlalchemy
 redis
 rq
 reppy
+logbook

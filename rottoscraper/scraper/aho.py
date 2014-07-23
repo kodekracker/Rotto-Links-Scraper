@@ -7,11 +7,9 @@ from collections import deque
 
 
 class Node:
-
     """
         Represents a single node in keyword tree
     """
-
     def __init__(self, ch=None):
         self.char = ch
         self.transitions = []
@@ -20,11 +18,9 @@ class Node:
 
 
 class AhoCorasick:
-
     """
         Returns a list of keywords matched in a given text
     """
-
     def __init__(self):
         """
             Initialize class attributes

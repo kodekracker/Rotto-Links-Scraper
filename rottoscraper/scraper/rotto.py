@@ -10,8 +10,8 @@ import logging
 import reppy
 from reppy.cache import RobotsCache
 
-import scraper.utils as utils
-from scraper.aho import AhoCorasick
+import rottoscraper.scraper.utils as utils
+from rottoscraper.scraper.aho import AhoCorasick
 
 class Link(object):
 
@@ -25,8 +25,6 @@ class Link(object):
     def __init__(self, url=None, status_code=None):
         self.url = url
         self.status_code = status_code
-        # Set logging object
-        self.logger = logging.getLogger('scraper')
 
     def set_status_code(self, status_code):
         self.status_code = status_code
@@ -69,8 +67,6 @@ class Page(Link):
         self.internal_links = []
         self.crawl_pages = []
         self.rotto_links = []
-        # Set logging object
-        self.logger = logging.getLogger('scraper')
 
     def get_content(self):
         """
@@ -101,10 +97,13 @@ class Page(Link):
         """
         if not self.content:
             self.get_content()
-        links = utils.get_external_links(self.host_url, self.content)
-        for url in links:
+        urls = utils.get_external_links(self.host_url, self.content)
+
+        # exclude all non-html files url's
+        urls = self.exclude_parser(urls)
+
+        for url in urls:
             self.external_links.append(Link(url))
-        self.external_links = self.exclude_parser(self.external_links)
         return self.external_links
 
     def get_internal_links(self, website):
@@ -113,21 +112,19 @@ class Page(Link):
         """
         if not self.content:
             self.get_content()
-        links = utils.get_internal_links(self.host_url, self.content)
+        urls = utils.get_internal_links(self.host_url, self.content)
 
         # exclude all url's not satisfied robots.txt rules
-        for url in links:
-            if website.rules.allowed(url):
-                self.internal_links.append(Link(url))
-            else:
-                self.logger.info('Disallowed :: ',url)
+        urls = [ url for url in urls if website.rules.allowed(url, '*')]
 
         # exclude all non-html files url's
-        self.internal_links = self.exclude_parser(self.internal_links)
+        urls = self.exclude_parser(urls)
 
+        for url in urls:
+            self.internal_links.append(Link(url))
         return self.internal_links
 
-    def exclude_parser(self, links):
+    def exclude_parser(self, urls):
         """
         """
         reg_ex = '.*(jpg|jpeg|pdf|svg|png|gif|woff|mp4|ogg|avi|mp3|webp|tiff|css|js)$'
@@ -136,7 +133,7 @@ class Page(Link):
             if bool(re.match(reg_ex, url)):
                 return False
             return True
-        return [link for link in links if crawlable(link.url)]
+        return [url for url in urls if crawlable(url)]
 
     def get_status_codes_of_links(self, website):
         """
@@ -159,15 +156,11 @@ class Page(Link):
             for link in self.external_links:
                 if link.url in res:
                     status_code = res[link.url].get('status_code', None)
-                    website.visited_links[link.url] = {
-                        'status_code': status_code}
+                    website.visited_links[link.url] = {'status_code': status_code}
                     link.set_status_code(status_code)
                 else:
-                    status_code = website.visited_links[
-                        link.url].get('status_code', None)
+                    status_code = website.visited_links[link.url].get('status_code', None)
                     link.set_status_code(status_code)
-
-        self.logger.info('External Links Processed :: %s', self.url)
 
         urls = []
         # process internal links
@@ -184,8 +177,7 @@ class Page(Link):
 
                 if link.url in res:
                     status_code = res[link.url].get('status_code', None)
-                    website.visited_links[link.url] = {
-                        'status_code': status_code}
+                    website.visited_links[link.url] = {'status_code': status_code}
                     link.set_status_code(status_code)
 
                     # check status is ok or not
@@ -197,11 +189,8 @@ class Page(Link):
                         print '\t Broken Url Found:: ', link.url
                         self.rotto_links.append(link.url)
                 else:
-                    status_code = website.visited_links[
-                        link.url].get('status_code', None)
+                    status_code = website.visited_links[link.url].get('status_code', None)
                     link.set_status_code(status_code)
-
-            self.logger.info('Internal Links Processed :: %s', self.url)
 
 
 class Website:
@@ -225,8 +214,6 @@ class Website:
         self.aho = AhoCorasick()
         self.result = []
         self.response = {}
-        self.no_of_pages_queued = 0
-        self.no_of_pages_crawled = 0
 
     def preInit(self):
         """
@@ -256,15 +243,6 @@ class Website:
         res['rotto_links'] = rotto_links
         res['keywords'] = keywords
         self.result.append(res)
-
-    def is_website_crawled_completely(self):
-        """
-        Tells whether website crawled completely or not
-        """
-        if self.no_of_pages_queued == self.no_of_pages_crawled:
-            return True
-        else:
-            return False
 
     def get_results(self):
         """
