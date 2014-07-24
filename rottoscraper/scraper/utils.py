@@ -1,14 +1,13 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, nested_scopes
-
 import sys
 import nltk
 import logging
 from bs4 import BeautifulSoup
 from urlparse import urljoin
-from os.path import splitext, basename
+from os.path import splitext
+from os.path import basename
 
 import requests
 import grequests

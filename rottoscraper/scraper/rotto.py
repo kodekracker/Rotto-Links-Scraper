@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, nested_scopes
-
 import re
 import time
 import logging
@@ -10,8 +8,8 @@ import logging
 import reppy
 from reppy.cache import RobotsCache
 
-import rottoscraper.scraper.utils as utils
-from rottoscraper.scraper.aho import AhoCorasick
+from . import utils
+from .aho import AhoCorasick
 
 class Link(object):
 
@@ -193,7 +191,7 @@ class Page(Link):
                     link.set_status_code(status_code)
 
 
-class Website:
+class Website(object):
 
     """
     Website to be crawled

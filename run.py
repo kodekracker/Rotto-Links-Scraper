@@ -1,22 +1,19 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, nested_scopes
+from __future__ import absolute_import
 
 import os
-import json
 import sys
-import logging
-import logging.handlers
 
 from logger import log
 from rottoscraper.gui import app
-from rottoscraper.scraper.task import start_dispatcher
+from rottoscraper.scraper import dispatch_website
 
 
 if __name__ == '__main__':
     # set package path in system environmnet path
-    path = os.path.abspath(os.path.join(os.path.dirname(__file__), "/rottoscraper"))
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), "./rottoscraper"))
     sys.path.append(path)
 
     # Create a logs direcory if not exist
@@ -29,8 +26,8 @@ if __name__ == '__main__':
         if(sys.argv[1]=='app'):
             app.run()
         elif(sys.argv[1]=='scraper'):
-            url = 'http://akshayon.net'
+            url = 'http://akshayon.net/'
             keywords = ['akshay','sunny','python','pelican','redis','twitter']
-            start_dispatcher(url, keywords)
+            dispatch_website(url, keywords)
         else:
             print 'You entered wrong arguments'

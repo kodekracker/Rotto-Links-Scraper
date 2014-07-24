@@ -24,13 +24,10 @@ from rq.job import Job
 from redis import Redis
 
 import settings
-from worker import redis_conn
 
 class AppView(MethodView):
     def get(self):
         return render_template('main.html')
-
-q = Queue('high', connection=redis_conn)
 
 app = Flask(__name__)
 app.config.from_object(settings)

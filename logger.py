@@ -3,9 +3,11 @@
 
 from __future__ import absolute_import, nested_scopes
 
+import logbook
 from logbook import FileHandler
 from logbook import Logger
 
-handler = FileHandler('logs/app.log')
 log = Logger('scraper')
-handler.push_application()
+
+file_handler = FileHandler('logs/app.log', level=logbook.DEBUG)
+file_handler.push_application()

@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Development Release
-__version__ = '0.0.1.dev1'
+__all__ = ['app']
 
 from app import app
-import settings

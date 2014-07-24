@@ -10,11 +10,13 @@ USERNAME = 'admin'
 PASSWORD = 'admin'
 
 DATABASE_URI = ''
+
+# Redis configuration
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 
 # You can also specify the Redis DB to use
-# REDIS_DB = 3
+REDIS_DB = 0
 # REDIS_PASSWORD = 'very secret'
 
 # Queues to listen on
