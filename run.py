@@ -7,9 +7,10 @@ import os
 import sys
 
 from logger import log
+from rottoscraper.db import create_db
 from rottoscraper.gui import app
 from rottoscraper.scraper import dispatch_website
-
+from rottoscraper.scraper.insert import insert_user
 
 if __name__ == '__main__':
     # set package path in system environmnet path
@@ -20,14 +21,14 @@ if __name__ == '__main__':
     if not os.path.exists('logs'):
         os.makedirs('logs')
 
-    if(len(sys.argv)!=2):
+    if(sys.argv[1]=='app'):
         app.run()
+    elif(sys.argv[1]=='scraper'):
+        url = 'http://akshayon.net/'
+        keywords = ['akshay','sunny','python','pelican','redis','twitter']
+        dispatch_website(url, keywords)
+    elif(sys.argv[1]=='db' and sys.argv[2]=='create'):
+        create_db()
+        print 'Successfully created database.'
     else:
-        if(sys.argv[1]=='app'):
-            app.run()
-        elif(sys.argv[1]=='scraper'):
-            url = 'http://akshayon.net/'
-            keywords = ['akshay','sunny','python','pelican','redis','twitter']
-            dispatch_website(url, keywords)
-        else:
-            print 'You entered wrong arguments'
+        print 'No arguments matched'

@@ -8,6 +8,7 @@ from worker import qH
 from worker import rDB
 from rottoscraper.scraper import Page
 from rottoscraper.scraper import Website
+import rottoscraper.db as db
 
 
 def dispatch_website(url, keywords):
@@ -92,7 +93,17 @@ def crawl_page(website, page):
             log.info('Saving results to database')
             # send the email to user
             log.info('Sending email to user')
+            insert_user()
 
     except Exception as e:
         log.exception('Error in crawling :: %s ' % (page.url))
     return website
+
+def insert_user():
+    user = db.User(email_id='sunny@gmail.com')
+    s = db.Session()
+    s.add(user)
+    s.commit()
+    for user in s.query(db.User).all():
+        print 'User :: ', user.email_id
+
