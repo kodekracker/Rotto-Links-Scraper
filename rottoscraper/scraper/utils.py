@@ -90,35 +90,38 @@ def get_plain_text(html):
     text = u' '.join(raw_text.split()).encode('utf-8').lower()
     return text
 
-
-def get_external_links(host_url, html):
+def get_all_links(html):
     """
-        Return the external links
+        Return all the links in html page
     """
-    external_links = []
     soup = BeautifulSoup(html)
     links = soup.find_all('a', href=True)
     # Remove '#' tag links
     links[:] = [l for l in links if not l['href'].startswith('#')]
+    return links
+
+def get_external_links(host_url, base_url, html):
+    """
+        Return the external links
+    """
+    external_links = []
+    links = get_all_links(html)
     for l in links:
-        url = get_absolute_url(host_url, l['href'])
+        url = get_absolute_url(base_url, l['href'])
         if not url.startswith(host_url):
             external_links.append(url)
     external_links = list(set(external_links))
     return external_links
 
 
-def get_internal_links(host_url, html):
+def get_internal_links(host_url, base_url, html):
     """
         Return the internal links
     """
     internal_links = []
-    soup = BeautifulSoup(html)
-    links = soup.find_all('a', href=True)
-    # Remove '#' tag links
-    links[:] = [l for l in links if not l['href'].startswith('#')]
+    links = get_all_links(html)
     for l in links:
-        url = get_absolute_url(host_url, l['href'])
+        url = get_absolute_url(base_url, l['href'])
         if url.startswith(host_url):
             internal_links.append(url)
     internal_links = list(set(internal_links))

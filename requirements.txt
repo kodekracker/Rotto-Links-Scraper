@@ -1,3 +1,4 @@
+enum
 flask
 flask-cors
 argparse
@@ -5,6 +6,7 @@ grequests
 beautifulsoup4
 nltk
 sqlalchemy
+sqlalchemy-utils
 redis
 rq
 reppy

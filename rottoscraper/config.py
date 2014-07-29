@@ -9,7 +9,7 @@ SECRET_KEY='\xb1\x85s\xe7\xa9\xcc\xe9C\xabq+\xcb/Nf\xea\x18C>\xfe:\xf8QY',
 USERNAME = 'admin'
 PASSWORD = 'admin'
 
-DATABASE_URI = 'sqlite:///rottoscraper/db/rottoscraper.db'
+DATABASE_URI = 'sqlite:///' + os.getenv('DATABASE_PATH', None) + 'rottoscraper.db'
 
 # Redis configuration
 REDIS_HOST = 'localhost'

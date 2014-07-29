@@ -7,4 +7,4 @@ from .aho import AhoCorasick
 from .rotto import Link
 from .rotto import Page
 from .rotto import Website
-from .tasks import dispatch_website
+from .tasks import dispatcher

@@ -3,7 +3,6 @@
 
 import re
 import time
-import logging
 
 import reppy
 from reppy.cache import RobotsCache
@@ -55,7 +54,7 @@ class Page(Link):
 
     def __init__(self, host_url=None, url=None, status_code=None, content=None):
         """
-            Initialize class attributes
+        Initialize class attributes
         """
         Link.__init__(self, url, status_code)
         self.host_url = host_url
@@ -68,7 +67,7 @@ class Page(Link):
 
     def get_content(self):
         """
-            Returns the html content of a page
+        Returns the html content of a page
         """
         if not self.content:
             res = utils.make_request(self.url)
@@ -78,7 +77,7 @@ class Page(Link):
 
     def get_keywords_matched(self, aho):
         """
-            Returns keywords matched in page
+        Returns keywords matched in page
         """
         if not self.content:
             self.get_content()
@@ -91,11 +90,11 @@ class Page(Link):
 
     def get_external_links(self):
         """
-            Returns a list of external links in a page
+        Returns a list of external links in a page
         """
         if not self.content:
             self.get_content()
-        urls = utils.get_external_links(self.host_url, self.content)
+        urls = utils.get_external_links(self.host_url, self.url, self.content)
 
         # exclude all non-html files url's
         urls = self.exclude_parser(urls)
@@ -106,11 +105,11 @@ class Page(Link):
 
     def get_internal_links(self, website):
         """
-            Returns a list of internal links in a page
+        Returns a list of internal links in a page
         """
         if not self.content:
             self.get_content()
-        urls = utils.get_internal_links(self.host_url, self.content)
+        urls = utils.get_internal_links(self.host_url, self.url, self.content)
 
         # exclude all url's not satisfied robots.txt rules
         urls = [ url for url in urls if website.rules.allowed(url, '*')]
@@ -124,6 +123,7 @@ class Page(Link):
 
     def exclude_parser(self, urls):
         """
+        Parser to exclude all non-html urls
         """
         reg_ex = '.*(jpg|jpeg|pdf|svg|png|gif|woff|mp4|ogg|avi|mp3|webp|tiff|css|js)$'
 
@@ -135,7 +135,7 @@ class Page(Link):
 
     def get_status_codes_of_links(self, website):
         """
-            Returns status_code of all links
+        Returns status_code of all links
         """
         # add this page in visited links
         website.visited_links[self.url] = {'status_code': self.status_code}
@@ -170,6 +170,7 @@ class Page(Link):
             # get the dict of (url,status_code,content) of each internal links
             res = utils.make_grequest(urls, content=True)
 
+            rt = []
             # set status code of each external links
             for link in self.internal_links:
 
@@ -185,11 +186,12 @@ class Page(Link):
                         self.crawl_pages.append(page)
                     else:
                         print '\t Broken Url Found:: ', link.url
-                        self.rotto_links.append(link.url)
+                        rt.append(link.url)
                 else:
                     status_code = website.visited_links[link.url].get('status_code', None)
                     link.set_status_code(status_code)
 
+            self.rotto_links = list(set(rt))
 
 class Website(object):
 
@@ -204,18 +206,18 @@ class Website(object):
     :param result: List of broken pages
     """
 
-    def __init__(self, url=None, keywords=[]):
+    def __init__(self, id=None, url=None, keywords=[]):
+        self.id = id
         self.url = url
         self.keywords = keywords
         self.visited_links = dict()
-        self.robots = RobotsCache()
+        self.rules = None
         self.aho = AhoCorasick()
         self.result = []
-        self.response = {}
 
     def preInit(self):
         """
-                Pre Init instructions for a crawler
+        Pre Init instructions for a crawler
         """
         # trim all keywords
         self.keywords = map(utils.clean, self.keywords)
@@ -229,25 +231,24 @@ class Website(object):
         self._set_robot_rule()
 
     def _set_robot_rule(self):
-        """Set the robots.txt rules"""
-        self.rules = self.robots.fetch(self.url)
+        """
+        Set the robots.txt rules
+        """
+        self.rules = RobotsCache().fetch(self.url)
 
-    def add_to_result(self, base_url, rotto_links, keywords):
+    def add_to_result(self, page):
         """
-                Add the rotto links to results
+        Add the rotto links to results
         """
-        res = {}
-        res['base_url'] = base_url
-        res['rotto_links'] = rotto_links
-        res['keywords'] = keywords
-        self.result.append(res)
+        self.result.append(page)
 
-    def get_results(self):
-        """
-        Return the results
-        """
-        self.response['url'] = self.url
-        self.response['keywords'] = self.keywords
-        self.response['total_visited_links'] = len(self.visited_links)
-        self.response['result'] = self.result
-        return self.response
+    def result_to_json(self):
+        res = []
+        for page in self.result:
+            res.append({
+                    'url' : page.url,
+                    'keywords' : page.matched_keywords,
+                    'rotto_links' : page.rotto_links
+                })
+
+        return res

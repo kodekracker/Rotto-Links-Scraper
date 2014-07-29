@@ -10,7 +10,7 @@ app.config(function($routeProvider){
         $routeProvider.when('/', {
             templateUrl: '../static/html/index.html',
             controller: 'RottoController'
-        }).when('/result/:jobId', {
+        }).when('/result/:websiteId', {
             templateUrl: '../static/html/result.html',
             controller: 'ResultController'
         }).otherwise({ redirectTo : '/' });
@@ -20,85 +20,82 @@ app.config(function($routeProvider){
 /* App Controllers */
 app.controller('RottoController',function($scope,$location,$http){
     $scope.userDetails = {};
-    $scope.isFormComplete = false;
+    $scope.formFilling = true
+    $scope.confirmDetails = false;
     $scope.showMessage = false;
     $scope.currentStepId = 1;
     $scope.jobDetails = 'null';
-    $scope.job_url = 'null';
-    $scope.showStep = function(id){
-        if(id==2)
-            $scope.userDetails.url = $scope.url || 'None';
-        else if(id==3){
-            $scope.userDetails.keywords = getKeys($scope.keywords) || 'None';
-        }
+    $scope.error = {'status':false}
 
+    $scope.showStep = function(id){
         $scope.currentStepId = id;
     };
 
-    $scope.confirmFormDetails = function(isValid,data){
+    $scope.confirmFormDetails = function(isValid){
         // submit form
-        $scope.userDetails.email = $scope.email || 'None' ;
+        console.log('Conform');
         if (isValid) {
-
-        console.log($scope.userDetails);
-            $scope.isFormComplete = true;
+            $scope.userDetails.url = $scope.url || 'None';
+            $scope.userDetails.keywords = getKeywordsArray($scope.keywords) || 'None';
+            $scope.userDetails.email_id = $scope.email || 'None' ;
+            console.log($scope.userDetails);
+            $scope.formFilling = false;
+            $scope.confirmDetails = true;
         }else{
             alert("Please correct all inputs.")
         }
     };
 
     $scope.cancelRequest = function(){
-        $location.url('#/');
-    }
+        console.log('cancel');
+        $location.url('/');
+    };
 
     $scope.submitRequest = function(){
         var url = 'http://localhost:5000/api/v1.0/crawl/';
+        console.log($scope.userDetails);
+        $scope.confirmDetails = false
         $http.post(url,$scope.userDetails).success(function(data,status){
-            $scope.jobDetails = data;
-            $scope.job_url = makeJobUrl($scope.jobDetails.job_id);
             console.log("success");
-            console.log($scope.jobDetails);
-             $scope.showMessage = true;
+            console.log(data);
+            if(status!==200){
+                $scope.error.status = true;
+                $scope.error.message = data.error
+            }else
+                $scope.showMessage = true;
         }).error(function(data,status){
             console.log("failure");
-            $scope.userDetails = data || "Request failed";
-            console.log($scope.jobDetails);
-            $scope.showMessage = true;
+            $scope.error.status = true;
+            $scope.error.message = data
         });
     }
 
-    function getKeys(data){
+    function getKeywordsArray(data){
         var arr = [];
         for (var i in data){
             arr.push(data[i].text)
         }
         return arr;
     };
-
-    function makeJobUrl(job_key){
-        var url = 'http://localhost:5000/#/result/'+job_key;
-        return url;
-    };
 });
 
 
 app.controller('ResultController',function($scope,$location,$routeParams,$http){
-    $scope.jobId = $routeParams.jobId;
-    $scope.isError = false;
-    $scope.jobDetails = {};
+    $scope.websiteId = $routeParams.websiteId;
+    $scope.error = {'status':false};
+    $scope.website = {};
+
     var url = 'http://localhost:5000/api/v1.0/crawl/'+$scope.jobId;
-
-
     $http.get(url).success(function(data, status, headers, config){
         console.log(data);
-        if(status=='202'){
-            $scope.isError = true;
-            $scope.errorMessage = data.error;
+        if(status!==200){
+            $scope.error.status = true;
+            $scope.error.message = data.error;
         }else{
-            $scope.jobDetails = data;
+            $scope.website = data;
         }
     }).error(function(data, status, headers, config){
-        $scope.isError = true;
-        $scope.errorMessage = 'Error in Request, Please Try Again.';
+        $scope.error.status = true;
+        $scope.error.message = 'Error in Request, Please Try Again.';
     });
 });
