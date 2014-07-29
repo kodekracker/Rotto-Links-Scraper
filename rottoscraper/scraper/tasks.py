@@ -3,6 +3,12 @@
 
 import time
 import json
+import os
+import smtplib
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from mako.template import Template
 
 from worker import qH
 from worker import qL
@@ -11,6 +17,12 @@ from scraper import Page
 from scraper import Website
 from db import Database
 from logger import log
+
+SMTP_USER = os.getenv('sendgriduser', None)
+SMTP_PASSWORD = os.getenv('sendgridpass', None)
+
+FROM = 'Rotto Scaper<rottoscaper@scaper.in>'
+TO = []
 
 def dispatcher():
     """
@@ -133,4 +145,41 @@ def save_result_to_database(website):
         log.info('Result Save successfully :: {0}'.format(website.url))
     except Exception as e:
         log.exception('Error in saving result in database')
+
+def result_mail(website):
+    try:
+        # Create message container - the correct MIME type is
+        # multipart/alternative.
+        msg = MIMEMultipart('alternative')
+
+        # Add user Mail ID to TO list
+        website = Database.fetch_website(id=website.id)
+        TO.append(website['user']['email_id'])
+
+        msg['Subject'] = 'Crawler Result'
+        msg['From'] = FROM
+        msg['To'] = ','.join(TO)
+
+        # Create the body of the message (an HTML version).
+        mytemplate = Template(filename='rottoscaper/scraper/resultmail.html')
+        # Pass result ID to template
+        html = mytemplate.render(website=data)
+
+        # Record the MIME types of text/html.
+        part = MIMEText(html, 'html')
+
+        # Attach part into message container.
+        msg.attach(part)
+
+        # Set SMTP server login ceredentials and send mail
+        server = smtplib.SMTP('smtp.sendgrid.net')
+        server.starttls()
+        server.login(SMTP_USER, SMTP_PASSWORD)
+        server.sendmail(FROM, TO, msg.as_string())
+        server.quit()
+        logger.info('Successfully sent the mail')
+        print "Successfully sent the mail"
+    except Exception as e:
+        logger.exception("Failed to send intro mail")
+        print "Failed to send intro mail"
 
