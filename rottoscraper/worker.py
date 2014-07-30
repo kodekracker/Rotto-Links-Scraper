@@ -7,10 +7,10 @@ import os
 import redis
 from rq import Worker, Queue, Connection
 
-from settings import REDIS_HOST
-from settings import REDIS_PORT
-from settings import REDIS_DB
-from settings import QUEUES_LISTEN
+from config import REDIS_HOST
+from config import REDIS_PORT
+from config import REDIS_DB
+from config import QUEUES_LISTEN
 
 
 # Get redis url

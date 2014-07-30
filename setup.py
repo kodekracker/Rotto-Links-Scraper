@@ -6,7 +6,7 @@ import rottoscraper
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -47,13 +47,13 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
+        # 'Programming Language :: Python :: 2',
+        # 'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        # 'Programming Language :: Python :: 3',
+        # 'Programming Language :: Python :: 3.2',
+        # 'Programming Language :: Python :: 3.3',
+        # 'Programming Language :: Python :: 3.4',
     ],
 
     # What does your project relate to?
@@ -68,10 +68,20 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
     install_requires=[
-        'argparse==1.2.1',
-        'beautifulsoup4==4.3.2',
-        'requests==2.3.0'
-        'requests-cache==0.4.4'
+        'docutils>=0.3',
+        'enum',
+        'flask',
+        'flask-cors',
+        'argparse',
+        'grequests',
+        'beautifulsoup4',
+        'nltk',
+        'sqlalchemy',
+        'sqlalchemy-utils',
+        'redis',
+        'rq',
+        'reppy',
+        'logbook'
     ],
 
     # To provide executable scripts, use entry points in preference to the

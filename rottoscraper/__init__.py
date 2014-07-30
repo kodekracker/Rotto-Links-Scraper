@@ -4,7 +4,7 @@
 # Development Release
 __version__ = '0.0.1.dev1'
 
-__all__ = ['db', 'gui', 'scraper']
+__all__ = ['db', 'gui', 'scraper', 'config', 'logger']
 
 import rottoscraper.db
 import rottoscraper.gui

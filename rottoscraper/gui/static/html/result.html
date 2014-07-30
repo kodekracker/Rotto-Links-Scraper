@@ -1,71 +1,68 @@
 <div class="result-box">
-    <div class="msg" ng-show="isError">
-        <p>{{ errorMessage }}</p>
+    <div class="msg" ng-if="error.status">
+        <p>{{ error.message }}</p>
     </div>
-    <div class="result"ng-show="!isError">
+    <div class="result"ng-if="!error.status">
         <div class="result-head fancy-box">
             <table>
-                <tr ng-show="jobDetails.status=='finished'">
+                <tr>
                     <td><span class="focus">Url : </span></td>
-                    <td><a href="{{jobDetails.url}}">{{ jobDetails.url }}</a></td>
+                    <td><a href="{{website.url}}">{{ website.url }}</a></td>
                 </tr>
-                <tr ng-show="jobDetails.status=='finished'">
+                <tr>
                     <td><span class="focus">Keywords:</span></td>
                     <td>
-                        <div class="keyword" ng-show="jobDetails.keywords.length!=0" ng-repeat="keyword in jobDetails.keywords">
+                        <div class="keyword" ng-show="website.keywords.length!=0" ng-repeat="keyword in website.keywords">
                             <span class="glyphicon glyphicon-tag"></span>
                             <span>{{keyword}}</span>
                         </div>
-                        <div ng-show="jobDetails.keywords.length==0">
-                                No Keyword
+                        <div ng-show="website.keywords.length==0">
+                            No Keyword
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td><span class="focus">Job Id: </span></td>
-                    <td>{{ jobId }}</td>
+                    <td><span class="focus">Website Id: </span></td>
+                    <td>{{ website.id }}</td>
                 </tr>
                 <tr>
                     <td><span class="focus">Job Status:</span></td>
-                    <td>{{ jobDetails.status.toUpperCase() }}</td>
+                    <td>{{ website.status.toUpperCase() }}</td>
                 </tr>
             </table>
         </div>
-        <div class="result-content fancy-box" ng-show="jobDetails.status=='finished'">
-            <div class="msg" ng-show="jobDetails.result.length==0">
+        <div class="result-content fancy-box">
+            <div class="msg" ng-show="website.result.length==0">
                 <p>No Rotto Links Page Found</p>
             </div>
-            <div class="result-content-row"  ng-repeat="res in jobDetails.result">
+            <div class="result-content-row"  ng-repeat="rottopage in website.result">
                 <table class="table">
                     <tr>
                         <td>{{$index+1}}&nbsp)</td>
                         <td><span class="focus">Rotto Page Url:</span></td>
-                        <td><a href="{{res.base_url}}" target="_blank">{{res.base_url}}</a></td>
+                        <td><a href="{{rottopage.url}}" target="_blank">{{rottopage.url}}</a></td>
                     </tr>
-                    <tr colspan="{{res.rotto_links.length}}">
+                    <tr colspan="{{rottopage.rotto_links.length}}">
                         <td></td>
                         <td><span class="focus">Rotto Url's:</span></td>
                         <td>
-                            <div class="rotto-row" ng-repeat="url in res.rotto_links">{{$index+1}})&nbsp<a href="{{url}}" target="_blank">{{url}}</a></div>
+                            <div class="rotto-row" ng-repeat="rottourl in rottopage.rotto_links">{{$index+1}})&nbsp<a href="{{rottourl}}" target="_blank">{{rottourl}}</a></div>
                         </td>
                     </tr>
                     <tr>
                         <td></td>
                         <td><span class="focus">Keywords Matched:</span></td>
                         <td>
-                            <div class="keyword" ng-show="res.keywords.length!=0" ng-repeat="keyword in res.keywords">
+                            <div class="keyword" ng-show="rottopage.keywords.length!=0" ng-repeat="keyword in rottopage.keywords">
                                 <span class="glyphicon glyphicon-tag"></span>
                                 <span>{{keyword}}</span>
                             </div>
-                            <div ng-show="res.keywords.length==0">
+                            <div ng-show="rottopage.keywords.length==0">
                                 No Keyword Matched
                             </div>
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="result-content-row" ng-show="jobDetails.status=='finished'">
-                <p>Total Visited Links : {{jobDetails.total_visited_links}}</p>
             </div>
         </div>
     </div>
