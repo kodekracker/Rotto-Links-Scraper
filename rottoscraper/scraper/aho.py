@@ -23,14 +23,14 @@ class AhoCorasick:
         """
             Initialize class attributes
         """
-        self.terms = []
+        self.keywords = []
         self.root = None
 
-    def add_keyword(self, term):
+    def add_keyword(self, keywords):
         """
             Add keywords
         """
-        self.terms.append(term)
+        self.keywords.append(keywords)
 
     def make_keyword_tree(self):
         """
@@ -42,7 +42,7 @@ class AhoCorasick:
         queue = deque([root])
 
         # Create the initial tree
-        for keyword in self.terms:
+        for keyword in self.keywords:
             current_node = root
             for ch in keyword:
                 new_node = None
@@ -89,7 +89,7 @@ class AhoCorasick:
             while trans is None:
                 # trans=currentNode.GetTransition(text[index])
                 for x in currentNode.transitions:
-                    if x.char == c:
+                    if unicode(x.char) == c:
                         trans = x
                 if currentNode == self.root:
                     break

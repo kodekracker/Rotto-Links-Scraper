@@ -4,10 +4,11 @@
 import time
 import json
 import os
+import sys
 import smtplib
-
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
 from mako.template import Template
 
 from worker import qH
@@ -17,12 +18,9 @@ from scraper import Page
 from scraper import Website
 from db import Database
 from logger import log
-
-SMTP_USER = os.getenv('sendgriduser', None)
-SMTP_PASSWORD = os.getenv('sendgridpass', None)
-
-FROM = 'Rotto Scaper<rottoscaper@scaper.in>'
-TO = []
+from config import FROM
+from config import SMTP_USER
+from config import SMTP_PASSWORD
 
 def dispatcher():
     """
@@ -33,8 +31,9 @@ def dispatcher():
         log.debug('Dispatcher Start')
         while True:
             websites = Database.fetches(limit=5)
-            for website in websites:
-                dispatch_website(website.id, website.url, website.keywords)
+            if websites:
+                for website in websites:
+                    dispatch_website(website['id'], website['url'], website['keywords'])
             # sleep for 15 minutes
             log.debug('Dispatcher sleeps for 15 minutes')
             time.sleep(60*15)
@@ -60,7 +59,7 @@ def dispatch_website(id, url, keywords):
         rDB.set(website.id+':pages_crawled', 0)
 
         # Enqueue job in redis-queue
-        job = qH.enqueue(crawl_page, website, page)
+        job = qL.enqueue(crawl_page, website, page)
 
         log.debug('Website Added in Queue :: {0}'.format(url))
     except Exception as e:
@@ -74,7 +73,8 @@ def crawl_page(website, page):
     """
     try:
         # set website status to started if it's a first page of website
-        if rDB.get(website.id+':pages_queued')==1:
+        print 'Pages Crawled:: {0}'.format(rDB.get(website.id+':pages_crawled'))
+        if rDB.get(website.id+':pages_queued')=='1':
             Database.set_website_status(id=website.id, status='started')
 
         log.debug('Crawling :: %s' % page.url)
@@ -111,25 +111,28 @@ def crawl_page(website, page):
         # add rotto links to result
         if page.rotto_links:
             log.info('Broken Links Found :: %s' % page.rotto_links)
-            website.add_to_result(page)
+            rDB.rpush(website.id+':result', Website.result_to_json(page))
 
         log.debug('Crawled :: %s' % (page.url))
 
         # increment website crawled page counter
-        rDB.incr(website.url+':pages_crawled')
+        rDB.incr(website.id+':pages_crawled')
 
         log.info('Pages Queued:: %s' % (rDB.get(website.id+':pages_queued')))
         log.info('Pages Crawled:: %s' % (rDB.get(website.id+':pages_crawled')))
 
-
         # checks if website crawled completely or not
         if rDB.get(website.id+':pages_queued')==rDB.get(website.id+':pages_crawled'):
+
             log.info('Website %s crawled Completely' % (website.url))
+
             # save results to database
-            qH.enqueue(save_result_to_database, website)
             log.info('Saving results to database')
+            qH.enqueue(save_result_to_database, website)
+
             # send the email to user
             log.info('Sending email to user')
+            send_mail_to_user(website)
 
     except Exception as e:
         log.exception('Error in crawling :: %s ' % (page.url))
@@ -141,12 +144,21 @@ def save_result_to_database(website):
     Saves result to database
     """
     try:
-        Database.set_website_status(id=website.id, status='finished', result=website.result_to_json())
+        result = rDB.lrange(website.id+':result', 0, -1)
+        if not result:
+            result = []
+        Database.set_website_status(id=website.id, status='finished', result=result)
         log.info('Result Save successfully :: {0}'.format(website.url))
+
+        # flush redis database
+        rDB.flushdb()
     except Exception as e:
         log.exception('Error in saving result in database')
 
-def result_mail(website):
+def send_mail_to_user(website):
+    """
+    Sends email to user
+    """
     try:
         # Create message container - the correct MIME type is
         # multipart/alternative.
@@ -154,16 +166,16 @@ def result_mail(website):
 
         # Add user Mail ID to TO list
         website = Database.fetch_website(id=website.id)
-        TO.append(website['user']['email_id'])
+        TO = [str(website['user']['email_id'])]
 
         msg['Subject'] = 'Crawler Result'
         msg['From'] = FROM
         msg['To'] = ','.join(TO)
 
         # Create the body of the message (an HTML version).
-        mytemplate = Template(filename='rottoscaper/scraper/resultmail.html')
+        mytemplate = Template(filename='rottoscraper/scraper/mail-template.html')
         # Pass result ID to template
-        html = mytemplate.render(website=data)
+        html = mytemplate.render(website_id=website['id'])
 
         # Record the MIME types of text/html.
         part = MIMEText(html, 'html')
@@ -177,9 +189,6 @@ def result_mail(website):
         server.login(SMTP_USER, SMTP_PASSWORD)
         server.sendmail(FROM, TO, msg.as_string())
         server.quit()
-        logger.info('Successfully sent the mail')
-        print "Successfully sent the mail"
+        log.info('Successfully sent the mail')
     except Exception as e:
-        logger.exception("Failed to send intro mail")
-        print "Failed to send intro mail"
-
+        log.exception('Error in sending email to user')

@@ -17,7 +17,7 @@ from logger import log
 from config import DATABASE_URI
 
 # Create an engine that stores data file in the local directory's
-engine = create_engine(DATABASE_URI, echo=True)
+engine = create_engine(DATABASE_URI, echo=False)
 
 # Define a Session class which will serve as a factory for new Session objects
 Session = sessionmaker(bind=engine)
@@ -47,6 +47,12 @@ def get_new_id(string, bytes=True, hex=False):
     except Exception:
         log.exception('Error in get new id')
 
+def deserialize_id(id):
+    """
+    Deserialize the id(i.e hex to bytes)
+    """
+    return uuid.UUID(hex=id).bytes
+
 class Database(object):
 
     @classmethod
@@ -73,7 +79,7 @@ class Database(object):
                 else:
                     return False
             elif id:
-                if(s.query(Website).filter(Website.id==id).count()>0):
+                if(s.query(Website).filter(Website.id==deserialize_id(id)).count()>0):
                     return True
                 else:
                     return False
@@ -94,7 +100,7 @@ class Database(object):
                 else:
                     return False
             elif id:
-                if(s.query(User).filter(User.id==id).count()>0):
+                if(s.query(User).filter(User.id==deserialize_id(id)).count()>0):
                     return True
                 else:
                     return False
@@ -111,7 +117,7 @@ class Database(object):
         a website identity object
         """
         try:
-            website = s.query(Website).filter(Website.id==id).first()
+            website = s.query(Website).filter(Website.id==deserialize_id(id)).first()
 
             if serialize:
                 website_json = WebsiteJsonSerializer().serialize(website)
@@ -132,7 +138,7 @@ class Database(object):
         try:
             user = None
             if id:
-                user = s.query(User).filter(User.id==id).first()
+                user = s.query(User).filter(User.id==deserialize_id(id)).first()
             else:
                 user = s.query(User).filter(User.email_id==email_id).first()
 
@@ -152,14 +158,12 @@ class Database(object):
         try:
             user = None
             if not Database.user_exists(email_id=request['email_id']):
-                log.debug('User Not exists')
                 user_id = get_new_id(request['email_id'])
                 # create user identity object and save to db
                 user = User(id=user_id, email_id=request['email_id'])
                 s.add(user)
                 s.commit()
             else:
-                log.debug('User exists')
                 user = Database.fetch_user(email_id=request['email_id'], serialize=False)
 
             # create website identity object and save to db
@@ -181,8 +185,10 @@ class Database(object):
         Set status and result of the website
         """
         try:
-            website = s.query(Website).filter(Website.id==id).one()
+            website = s.query(Website).filter(Website.id==deserialize_id(id)).first()
             website.status = status
+            print 'Setting status to {0} of {1}'.format(status, website.url)
+
             if result:
                 website.result = result
             s.commit()
@@ -195,7 +201,11 @@ class Database(object):
         Returns a list of websites having status pending
         """
         try:
+            result = []
             websites = s.query(Website).filter(Website.status==Status.PENDING).limit(limit).all()
-            return websites
+            if websites:
+                for website in websites:
+                    result.append(WebsiteJsonSerializer().serialize(website))
+            return result
         except Exception:
             log.exception('Error in fetches')

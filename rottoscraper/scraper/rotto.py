@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import json
 import time
 
 import reppy
@@ -213,7 +214,6 @@ class Website(object):
         self.visited_links = dict()
         self.rules = None
         self.aho = AhoCorasick()
-        self.result = []
 
     def preInit(self):
         """
@@ -236,19 +236,16 @@ class Website(object):
         """
         self.rules = RobotsCache().fetch(self.url)
 
-    def add_to_result(self, page):
-        """
-        Add the rotto links to results
-        """
-        self.result.append(page)
+    @classmethod
+    def result_to_json(cls, page):
+        result = {
+            "url" : page.url,
+            "keywords" : page.matched_keywords,
+            "rotto_links" : page.rotto_links
+        }
+        result = json.dumps(result)
+        print 'Result :: ', result
+        return result
 
-    def result_to_json(self):
-        res = []
-        for page in self.result:
-            res.append({
-                    'url' : page.url,
-                    'keywords' : page.matched_keywords,
-                    'rotto_links' : page.rotto_links
-                })
-
-        return res
+    def __repr__(self):
+        return '(Website: {0.id} - {0.url} - {0.keywords} )'.format(self)

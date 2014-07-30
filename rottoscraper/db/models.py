@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # -*- coding : utf-8 -*-
 
+import json
+
 from sqlalchemy import Table
 from sqlalchemy import Column
 from sqlalchemy import String
@@ -76,7 +78,7 @@ class WebsiteUserJsonSerializer(JsonSerializer):
 class WebsiteJsonSerializer(JsonSerializer):
     __attributes__ = ['id', 'url', 'last_time_crawled', 'status','keywords','result', 'user']
     __required__ = ['id','url','keywords','status']
-    __attribute_serializer__ = dict(id='id', last_time_crawled='date', user='user', keywords='keywords')
+    __attribute_serializer__ = dict(id='id', last_time_crawled='date', user='user', keywords='keywords', result='result')
     __object_class__ = Website
 
     def __init__(self):
@@ -88,4 +90,8 @@ class WebsiteJsonSerializer(JsonSerializer):
         self.serializers['user'] = dict(
             serialize=lambda x: WebsiteUserJsonSerializer().serialize(x),
             deserialize=lambda x: WebsiteUserJsonSerializer().deserialize(x)
+        )
+        self.serializers['result'] = dict(
+            serialize=lambda x: [json.loads(xx) for xx in x],
+            deserialize=lambda x: [json.dumps(xx) for xx in x]
         )

@@ -85,7 +85,7 @@ app.controller('ResultController',function($scope,$location,$routeParams,$http){
     $scope.error = {'status':false};
     $scope.website = {};
 
-    var url = 'http://localhost:5000/api/v1.0/crawl/'+$scope.jobId;
+    var url = 'http://localhost:5000/api/v1.0/crawl/'+$scope.websiteId;
     $http.get(url).success(function(data, status, headers, config){
         console.log(data);
         if(status!==200){

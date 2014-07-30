@@ -22,3 +22,9 @@ REDIS_DB = 0
 # Queues to listen on
 QUEUES_LISTEN = ['high', 'normal', 'low']
 
+# Mail Details
+FROM = 'Rotto Links Scaper<noreply@rottoscraper.com>'
+
+# SMTP Cerendentials
+SMTP_USER = os.getenv('SMTP_USER', None)
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', None)

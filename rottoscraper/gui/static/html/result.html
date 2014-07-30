@@ -7,7 +7,7 @@
             <table>
                 <tr>
                     <td><span class="focus">Url : </span></td>
-                    <td><a href="{{website.url}}">{{ website.url }}</a></td>
+                    <td><a href="{{website.url}}" target='_blank'>{{ website.url }}</a></td>
                 </tr>
                 <tr>
                     <td><span class="focus">Keywords:</span></td>
@@ -29,6 +29,10 @@
                     <td><span class="focus">Job Status:</span></td>
                     <td>{{ website.status.toUpperCase() }}</td>
                 </tr>
+                <tr>
+                    <td><span class="focus">Last Time Crawled:</span></td>
+                    <td>{{ website.last_time_crawled }}</td>
+                </tr>
             </table>
         </div>
         <div class="result-content fancy-box">
@@ -36,6 +40,7 @@
                 <p>No Rotto Links Page Found</p>
             </div>
             <div class="result-content-row"  ng-repeat="rottopage in website.result">
+
                 <table class="table">
                     <tr>
                         <td>{{$index+1}}&nbsp)</td>
