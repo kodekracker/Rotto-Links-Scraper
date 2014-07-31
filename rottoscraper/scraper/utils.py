@@ -21,22 +21,22 @@ def make_request(url, timeout=5.0, num_of_retry=3, allow_redirects=True):
     """
         Return response object of url if content-type:text/html
     """
-    while num_of_retry > 0:
-        try:
-            res = requests.get(url, timeout=timeout, allow_redirects=allow_redirects)
-            log.info('Made Request %s :: %d ' % (url, res.status_code))
-            if res.status_code == requests.codes.ok:
-                return res
-            else:
-                res.raise_for_status()
-            # num of retries completed
-            raise RequestException
-        except Timeout:
-            num_of_retry -= 1
-            log.info('Retrying :: (Url= %s, Retries Left=%d)' % (url, num_of_retry))
-            continue
-        except RequestException as e:
-            log.exception('Error in make_request')
+    try:
+        while num_of_retry > 0:
+            try:
+                res = requests.get(url, timeout=timeout, allow_redirects=allow_redirects)
+                log.info('Made Request {0} :: {1} '.format(url, res.status_code))
+                if res.status_code == requests.codes.ok:
+                    return res
+                else:
+                    log.info('Url is not ok :: {0}'.format(url))
+                    return None
+            except Timeout:
+                num_of_retry -= 1
+                log.info('Retrying :: (Url= {0}, Retries Left={1})'.format(url, num_of_retry))
+                continue
+    except RequestException as e:
+        log.exception('Error in make_request')
 
 
 def make_grequest(urls, content=False, size=5):
@@ -54,7 +54,8 @@ def make_grequest(urls, content=False, size=5):
 
         res = grequests.map(reqs, stream=False, size=size)
         for url, r in zip(urls, res):
-            log.info('Made Request %s :: %d ' % (url, r.status_code))
+            if r:
+                log.info('Made GRequest {0} :: {1} '.format(url, (r.status_code or None ))
             if content:
                 ret[url] = {
                     'status_code': r.status_code,
@@ -123,6 +124,7 @@ def get_internal_links(host_url, base_url, html):
     for l in links:
         url = get_absolute_url(base_url, l['href'])
         if url.startswith(host_url) and url not in internal_links:
+            print 'base_url = {0} , href= {1} => {2}'.format(base_url, l['href'], url)
             text = u' '.join(l.text.split())
             internal_links[url] = (text or None)
     return internal_links
@@ -132,13 +134,14 @@ def get_absolute_url(base_url, relative_url):
     """
         Return the absolute url from relative url
     """
+    base_url = base_url.strip()
+    relative_url = relative_url.strip()
     # relative url checking and handling
-    if relative_url.startswith('.'):
-        page, ext = splitext(basename(base_url))
-        if ext or base_url.endswith('/'):
-            base_url = base_url[:]
-        else:
-            base_url = base_url[:] + '/'
+    page, ext = splitext(basename(base_url))
+    if ext or base_url.endswith('/'):
+        base_url = base_url
+    else:
+        base_url = base_url + '/'
     absolute_url = urljoin(base_url, relative_url)
     return absolute_url
 

@@ -9,7 +9,7 @@ A web crawler/scraper to find the broken links in the targeted seed url based on
 2. Python 2.7+
 
 ##Instructions
-1. First install all dependencies listed in **`requirements.txt`** using *pip* package manager :(dsd)
+1. First install all dependencies listed in **`requirements.txt`** using *pip* package manager :
 ```
     $ pip install -r requirements.txt
 ```

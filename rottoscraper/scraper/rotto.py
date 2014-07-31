@@ -44,7 +44,7 @@ class Link(object):
         self.text = text
 
     def __repr__(self):
-        return "{0.url} has status code {0.status_code} and text = {0.text}".format(self)
+        return "( {0.url} :: {0.status_code} :: text = {0.text} )".format(self)
 
 
 class Page(Link):

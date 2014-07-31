@@ -54,7 +54,7 @@ def dispatch_website(id, url, keywords):
         website.preInit()
         page = Page(website.url, website.url)
 
-        # set website completion variables in redis db
+        # set website watch variables in redis db
         rDB.set(website.id+':pages_queued', 1)
         rDB.set(website.id+':pages_crawled', 0)
 
@@ -74,26 +74,28 @@ def crawl_page(website, page):
     try:
         # set website status to started if it's a first page of website
         print 'Pages Crawled:: {0}'.format(rDB.get(website.id+':pages_crawled'))
+        print 'Pages Queued:: {0}'.format(rDB.get(website.id+':pages_queued'))
+
         if rDB.get(website.id+':pages_queued')=='1':
             Database.set_website_status(id=website.id, status='started')
 
-        log.debug('Crawling :: %s' % page.url)
+        log.debug('Crawling :: {0}'.format(page.url))
 
         # get page content
-        log.info('Getting Page Content :: %s' % (page.url))
+        log.info('Getting Page Content :: {0}'.format(page.url))
         page.get_content()
 
         # get keywords matched
         keys = page.get_keywords_matched(website.aho)
-        log.info('Matched Keywords :: %s' % (keys))
+        log.info('Matched Keywords :: {0}'.format(keys))
 
         # get external links
         # page.get_external_links()
-        log.info('Found External Links :: %d' % (len(page.external_links)))
+        log.info('Found External Links :: {0}'.format(len(page.external_links)))
 
         # get internal links
         page.get_internal_links(website)
-        log.info('Found Internal Links :: %d' % (len(page.internal_links)))
+        log.info('Found Internal Links :: {0}'.format(len(page.internal_links)))
 
         # get status code of all links
         log.info('Getting Status of all Links')
@@ -102,7 +104,7 @@ def crawl_page(website, page):
         log.info('Enqueueing New Jobs ')
         # enqueue the un-broken internal links
         for p in page.crawl_pages:
-            log.info('Enqueued :: %s' % (p.url))
+            log.info('Enqueued :: {0}'.format(p.url))
             rDB.incr(website.id+':pages_queued')
             qH.enqueue(crawl_page, website, p)
 
@@ -110,21 +112,21 @@ def crawl_page(website, page):
         log.info('Adding Result to website')
         # add rotto links to result
         if page.rotto_links:
-            log.info('Broken Links Found :: %s' % page.rotto_links)
+            log.info('Broken Links Found :: {0}'.format(page.rotto_links))
             rDB.rpush(website.id+':result', Website.result_to_json(page))
 
-        log.debug('Crawled :: %s' % (page.url))
+        log.debug('Crawled :: {0}'.format(page.url))
 
         # increment website crawled page counter
         rDB.incr(website.id+':pages_crawled')
 
-        log.info('Pages Queued:: %s' % (rDB.get(website.id+':pages_queued')))
-        log.info('Pages Crawled:: %s' % (rDB.get(website.id+':pages_crawled')))
+        log.info('Pages Queued:: {0}'.format(rDB.get(website.id+':pages_queued')))
+        log.info('Pages Crawled:: {0}'.format(rDB.get(website.id+':pages_crawled')))
 
         # checks if website crawled completely or not
         if rDB.get(website.id+':pages_queued')==rDB.get(website.id+':pages_crawled'):
 
-            log.info('Website %s crawled Completely' % (website.url))
+            log.info('Website {0} crawled Completely'.format(website.url))
 
             # save results to database
             log.info('Saving results to database')
@@ -135,8 +137,7 @@ def crawl_page(website, page):
             send_mail_to_user(website)
 
     except Exception as e:
-        log.exception('Error in crawling :: %s ' % (page.url))
-    return website
+        log.exception('Error in crawling :: {0}'.format(page.url))
 
 
 def save_result_to_database(website):
