@@ -20,9 +20,10 @@ class Link(object):
     :param status_code: Status Code of a Link
     """
 
-    def __init__(self, url=None, status_code=None):
+    def __init__(self, url=None, status_code=None, text=None):
         self.url = url
         self.status_code = status_code
+        self.text = text
 
     def set_status_code(self, status_code):
         self.status_code = status_code
@@ -36,8 +37,14 @@ class Link(object):
     def get_url(self):
         return self.url
 
-    def __str__(self):
-        return "%s has status code %d" % (self.url, self.status_code)
+    def get_text(self):
+        return self.text
+
+    def set_text(self, text):
+        self.text = text
+
+    def __repr__(self):
+        return "{0.url} has status code {0.status_code} and text = {0.text}".format(self)
 
 
 class Page(Link):
@@ -95,34 +102,37 @@ class Page(Link):
         """
         if not self.content:
             self.get_content()
-        urls = utils.get_external_links(self.host_url, self.url, self.content)
+
+        links = utils.get_external_links(self.host_url, self.url, self.content)
 
         # exclude all non-html files url's
-        urls = self.exclude_parser(urls)
+        links = self.exclude_parser(links)
 
-        for url in urls:
-            self.external_links.append(Link(url))
+        for url, text in links.iteritems():
+            self.external_links.append(Link(url=url, text=text))
         return self.external_links
 
-    def get_internal_links(self, website):
+    def get_internal_links(self, website=None):
         """
         Returns a list of internal links in a page
         """
         if not self.content:
             self.get_content()
-        urls = utils.get_internal_links(self.host_url, self.url, self.content)
-
+        links = utils.get_internal_links(self.host_url, self.url, self.content)
         # exclude all url's not satisfied robots.txt rules
-        urls = [ url for url in urls if website.rules.allowed(url, '*')]
+        if website:
+            for url in links.keys():
+                if not website.rules.allowed(url, '*'):
+                    del links[url]
 
         # exclude all non-html files url's
-        urls = self.exclude_parser(urls)
+        links = self.exclude_parser(links)
 
-        for url in urls:
-            self.internal_links.append(Link(url))
+        for url, text in links.iteritems():
+            self.internal_links.append(Link(url=url, text=text))
         return self.internal_links
 
-    def exclude_parser(self, urls):
+    def exclude_parser(self, links):
         """
         Parser to exclude all non-html urls
         """
@@ -132,7 +142,12 @@ class Page(Link):
             if bool(re.match(reg_ex, url)):
                 return False
             return True
-        return [url for url in urls if crawlable(url)]
+
+        for url in links.keys():
+            if not crawlable(url):
+                del links[url]
+
+        return links
 
     def get_status_codes_of_links(self, website):
         """
@@ -171,7 +186,6 @@ class Page(Link):
             # get the dict of (url,status_code,content) of each internal links
             res = utils.make_grequest(urls, content=True)
 
-            rt = []
             # set status code of each external links
             for link in self.internal_links:
 
@@ -187,12 +201,11 @@ class Page(Link):
                         self.crawl_pages.append(page)
                     else:
                         print '\t Broken Url Found:: ', link.url
-                        rt.append(link.url)
+                        self.rotto_links.append(link)
                 else:
                     status_code = website.visited_links[link.url].get('status_code', None)
                     link.set_status_code(status_code)
 
-            self.rotto_links = list(set(rt))
 
 class Website(object):
 
@@ -238,10 +251,15 @@ class Website(object):
 
     @classmethod
     def result_to_json(cls, page):
+
+        rotto_links = []
+        for link in page.rotto_links:
+            rotto_links.append({'url':link.url, 'text':link.text})
+
         result = {
             "url" : page.url,
             "keywords" : page.matched_keywords,
-            "rotto_links" : page.rotto_links
+            "rotto_links" : rotto_links
         }
         result = json.dumps(result)
         print 'Result :: ', result

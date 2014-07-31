@@ -104,13 +104,13 @@ def get_external_links(host_url, base_url, html):
     """
         Return the external links
     """
-    external_links = []
+    external_links = {}
     links = get_all_links(html)
     for l in links:
         url = get_absolute_url(base_url, l['href'])
-        if not url.startswith(host_url):
-            external_links.append(url)
-    external_links = list(set(external_links))
+        if not url.startswith(host_url) and url not in external_links:
+            text = u' '.join(l.text.split())
+            external_links[url] = (text or None)
     return external_links
 
 
@@ -118,13 +118,13 @@ def get_internal_links(host_url, base_url, html):
     """
         Return the internal links
     """
-    internal_links = []
+    internal_links = {}
     links = get_all_links(html)
     for l in links:
         url = get_absolute_url(base_url, l['href'])
-        if url.startswith(host_url):
-            internal_links.append(url)
-    internal_links = list(set(internal_links))
+        if url.startswith(host_url) and url not in internal_links:
+            text = u' '.join(l.text.split())
+            internal_links[url] = (text or None)
     return internal_links
 
 

@@ -1,75 +1,77 @@
-<div class="user-form" ng-show="formFilling">
-    <div class="steps-nav">
-        <ul>
-            <li class="cursor" ng-class="{true:'nav-selected'}[currentStepId==1]" ng-click="showStep(1)">
-                <p>Step 1</p>
-            </li>
-            <li class="cursor" ng-class="{true:'nav-selected'}[currentStepId==2]" ng-click="showStep(2)">
-                <p>Step 2</p>
-            </li>
-            <li class="cursor" ng-class="{true:'nav-selected'}[currentStepId==3]" ng-click="showStep(3)">
-                <p>Step 3</p>
-            </li>
-        </ul>
-    </div>
+<div class="main-page">
+    <div class="user-form" ng-show="formFilling">
+        <div class="steps-nav">
+            <ul>
+                <li class="cursor" ng-class="{true:'nav-selected'}[currentStepId==1]" ng-click="showStep(1)">
+                    <p>Step 1</p>
+                </li>
+                <li class="cursor" ng-class="{true:'nav-selected'}[currentStepId==2]" ng-click="showStep(2)">
+                    <p>Step 2</p>
+                </li>
+                <li class="cursor" ng-class="{true:'nav-selected'}[currentStepId==3]" ng-click="showStep(3)">
+                    <p>Step 3</p>
+                </li>
+            </ul>
+        </div>
 
-    <div class="steps-form" >
-        <form name="crawlForm" method="POST">
-            <div class="fancy-box form-wrapper step" ng-class="{true:'step-selected',false:'step-unselected'}[currentStepId==1]">
-                <label for="url">URL</label>
-                <input type="url" ng-model="url" name="url" class="form-control" placeholder="http:// or https://" required>
-                <button class="btn btn-default" ng-click="showStep(2)" >Next</button>
-            </div>
-            <div class="fancy-box form-wrapper step" ng-class="{true:'step-selected',false:'step-unselected'}[currentStepId==2]">
-                <label for="keywords">Keywords</label>
-                <tags-input ng-model="keywords"></tags-input>
-                <button class="btn btn-default" ng-click="showStep(3)" >Next</button>
-            </div>
-            <div class="fancy-box form-wrapper step" ng-class="{true:'step-selected',false:'step-unselected'}[currentStepId==3]">
-                <label for="email">Email-Id</label>
-                <input type="email" ng-model="email" name="email" class="form-control"  placeholder="Enter a email address" required>
-                <button type="submit" class="btn btn-default" ng-click="confirmFormDetails(crawlForm.$valid)">Submit</button>
-            </div>
-        </form>
+        <div class="steps-form" >
+            <form name="crawlForm" method="POST">
+                <div class="fancy-box form-wrapper step" ng-class="{true:'step-selected',false:'step-unselected'}[currentStepId==1]">
+                    <label for="url">URL</label>
+                    <input type="url" ng-model="url" name="url" class="form-control" placeholder="http:// or https://" required>
+                    <button class="btn btn-default" ng-click="showStep(2)" >Next</button>
+                </div>
+                <div class="fancy-box form-wrapper step" ng-class="{true:'step-selected',false:'step-unselected'}[currentStepId==2]">
+                    <label for="keywords">Keywords</label>
+                    <tags-input ng-model="keywords"></tags-input>
+                    <button class="btn btn-default" ng-click="showStep(3)" >Next</button>
+                </div>
+                <div class="fancy-box form-wrapper step" ng-class="{true:'step-selected',false:'step-unselected'}[currentStepId==3]">
+                    <label for="email">Email-Id</label>
+                    <input type="email" ng-model="email" name="email" class="form-control"  placeholder="Enter a email address" required>
+                    <button type="submit" class="btn btn-default" ng-click="confirmFormDetails(crawlForm.$valid)">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="user-form-data" ng-show="confirmDetails">
+        <div class="user-form-data-head">Review Details</div>
+        <div class="user-form-data-content fancy-box">
+           <table>
+                <tr>
+                    <td><span class="focus">Url:</span></td>
+                    <td>{{userDetails.url}}</td>
+                </tr>
+                <tr>
+                    <td><span class="focus">Keywords:</span></td>
+                    <td>
+                        <div class="keyword" ng-if="userDetails.keywords.length!=0" ng-repeat="keyword in userDetails.keywords">
+                            <span class="glyphicon glyphicon-tag"></span>
+                            <span>{{keyword}}</span>
+                        </div>
+                        <div ng-if="userDetails.keywords.length==0">
+                                No Keyword
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="focus">Email-Id:</span></td>
+                    <td>{{userDetails.email_id}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="button-box">
+            <button type="submit" class="btn btn-default fancy-button cancel" ng-click="cancelRequest()">Cancel</button>
+            <button type="submit" class="btn btn-default fancy-button process" ng-click="submitRequest()">Process</button>
+        </div>
+    </div>
+    <div class="message fancy-box" ng-show="showMessage" >
+        <h3>Your Request is in Queue</h3>
+        <p>We will get back to you soon with some solid result. Checkout your email-Id after few moments.</p>
+    </div>
+    <div class="message fancy-box" ng-show="error.status" >
+        <h3>Error Occured in sending request</h3>
+        <p>{{error.message}}</p>
     </div>
 </div>
-<div class="user-form-data" ng-show="confirmDetails">
-    <div class="user-form-data-head fancy-box">
-       <table>
-            <tr>
-                <td><span class="focus">Url:</span></td>
-                <td>{{userDetails.url}}</td>
-            </tr>
-            <tr>
-                <td><span class="focus">Keywords:</span></td>
-                <td>
-                    <div class="keyword" ng-if="userDetails.keywords.length!=0" ng-repeat="keyword in userDetails.keywords">
-                        <span class="glyphicon glyphicon-tag"></span>
-                        <span>{{keyword}}</span>
-                    </div>
-                    <div ng-if="userDetails.keywords.length==0">
-                            No Keyword
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td><span class="focus">Email-Id:</span></td>
-                <td>{{userDetails.email_id}}</td>
-            </tr>
-        </table>
-    </div>
-    <div class="button-box">
-        <button type="submit" class="btn btn-default fancy-button cancel" ng-click="cancelRequest()">Cancel</button>
-        <button type="submit" class="btn btn-default fancy-button process" ng-click="submitRequest()">Process</button>
-    </div>
-</div>
-<div class="message fancy-box" ng-show="showMessage" >
-    <h3>Your Request is in Queue</h3>
-    <p>We will get back to you soon with some solid result. Checkout your email-Id after few moments.</p>
-</div>
-<div class="message fancy-box" ng-show="error.status" >
-    <h3>Error Occured in sending request</h3>
-    <p>{{error.message}}</p>
-</div>
-
 

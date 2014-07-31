@@ -47,8 +47,7 @@ app.controller('RottoController',function($scope,$location,$http){
     };
 
     $scope.cancelRequest = function(){
-        console.log('cancel');
-        $location.url('/');
+        $location.url('/cancel', '/');
     };
 
     $scope.submitRequest = function(){

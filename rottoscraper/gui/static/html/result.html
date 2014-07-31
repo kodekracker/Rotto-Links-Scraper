@@ -1,4 +1,4 @@
-<div class="result-box">
+<div class="result-page">
     <div class="msg" ng-if="error.status">
         <p>{{ error.message }}</p>
     </div>
@@ -23,7 +23,7 @@
                 </tr>
                 <tr>
                     <td><span class="focus">Website Id: </span></td>
-                    <td>{{ website.id }}</td>
+                    <td class="simple-font">{{ website.id }}</td>
                 </tr>
                 <tr>
                     <td><span class="focus">Job Status:</span></td>
@@ -31,7 +31,7 @@
                 </tr>
                 <tr>
                     <td><span class="focus">Last Time Crawled:</span></td>
-                    <td>{{ website.last_time_crawled }}</td>
+                    <td class="simple-font"> {{ website.last_time_crawled }}</td>
                 </tr>
             </table>
         </div>
@@ -51,7 +51,10 @@
                         <td></td>
                         <td><span class="focus">Rotto Url's:</span></td>
                         <td>
-                            <div class="rotto-row" ng-repeat="rottourl in rottopage.rotto_links">{{$index+1}})&nbsp<a href="{{rottourl}}" target="_blank">{{rottourl}}</a></div>
+                            <div class="rotto-row" ng-repeat="link in rottopage.rotto_links">{{$index+1}})&nbsp
+                            <a href="{{link.url}}" target="_blank">{{link.url}}</a>
+                            <span class='link-text' ng-if="link.text">[{{link.text}}]</span>
+                            </div>
                         </td>
                     </tr>
                     <tr>
