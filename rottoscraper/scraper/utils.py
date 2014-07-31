@@ -87,7 +87,7 @@ def get_plain_text(html):
         Return the plain text in utf-8 encoding from a html
     """
     raw_text = nltk.clean_html(html)
-    text = u' '.join(raw_text.split()).encode('utf-8').lower()
+    text = u' '.join(raw_text.split()).lower()
     return text
 
 def get_all_links(html):

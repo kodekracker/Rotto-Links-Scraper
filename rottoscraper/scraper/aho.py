@@ -89,7 +89,7 @@ class AhoCorasick:
             while trans is None:
                 # trans=currentNode.GetTransition(text[index])
                 for x in currentNode.transitions:
-                    if unicode(x.char) == c:
+                    if x.char == c:
                         trans = x
                 if currentNode == self.root:
                     break

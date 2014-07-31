@@ -28,3 +28,6 @@ FROM = 'Rotto Links Scaper<noreply@rottoscraper.com>'
 # SMTP Cerendentials
 SMTP_USER = os.getenv('SMTP_USER', None)
 SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', None)
+
+# Logs DIR Path
+LOGS_DIR = os.getenv('LOGS_DIR', 'logs/')

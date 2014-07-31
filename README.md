@@ -5,6 +5,7 @@ A web crawler/scraper to find the broken links in the targeted seed url based on
 
 ##Installation
 1. Redis
+3. Fabric
 2. Python 2.7+
 
 ##Instructions
@@ -26,18 +27,26 @@ A web crawler/scraper to find the broken links in the targeted seed url based on
     export SMTP_PASSWORD='smtp-password'
 ```
 
+4. Also, set the one more environmnet variable to save **`Logs`** of the app in defined location.
+```python
+    # your shell config file
+    export LOGS_DIR='path/to/logs'
+```
+
 ##Commands
+Note:- First install *`Fabric`* to run below commands
+
 To run a gui app :
 ```
-    $ python rottoscraper/run.py app
+    $ fab app
 ```
 To run a dispatcher :
 ```
-    $ python rottoscraper/run.py dispatcher
+    $ fab dispatcher
 ```
 To run a worker :
 ```
-    $ python rotttoscraper/worker.py
+    $ fab worker
 ```
 ##Developer
 1. [Akshay Pratap Singh](https://www.facebook.com/AKSHAYPRATAP007)

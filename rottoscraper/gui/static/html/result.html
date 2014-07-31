@@ -36,10 +36,10 @@
             </table>
         </div>
         <div class="result-content fancy-box">
-            <div class="msg" ng-show="website.result.length==0">
+            <div class="msg" ng-if="!website.result">
                 <p>No Rotto Links Page Found</p>
             </div>
-            <div class="result-content-row"  ng-repeat="rottopage in website.result">
+            <div class="result-content-row" ng-if='website.result' ng-repeat="rottopage in website.result">
 
                 <table class="table">
                     <tr>
